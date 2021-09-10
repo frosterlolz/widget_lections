@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:widget_lections/screens/feedScreen.dart';
+import 'package:widget_lections/screens/home.dart';
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -9,7 +9,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(primarySwatch: Colors.blue,),
-      home: Feed(),
+      onGenerateRoute: (RouteSettings settings){
+        if (settings.name == 'photoPage')
+          print('check');
+      },
+      home: Home(),
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:widget_lections/res/res.dart';
 
 AppBar buildAppBar(BuildContext context) {
 

@@ -1,16 +1,21 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:widget_lections/models/user.dart';
 import 'package:widget_lections/res/res.dart';
 import 'package:widget_lections/widgets/photo.dart';
 import 'package:widget_lections/widgets/widgets.dart';
 
 class PhotoPage extends StatefulWidget {
-  const PhotoPage({Key? key}) : super(key: key);
+  const PhotoPage({Key? key, required this.user}) : super(key: key);
+
+  final User user;
 
   @override
   _PhotoPageState createState() => _PhotoPageState();
 }
+
+
 
 class _PhotoPageState extends State<PhotoPage> {
   @override
@@ -19,14 +24,13 @@ class _PhotoPageState extends State<PhotoPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Photo(photoLink: 'https://live.staticflickr.com/3926/14514264399_89748ebca3_k.jpg'), // padding: h 10 v 5
+          Photo(photoLink: widget.user.imagePath), // padding: h 10 v 5
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            child: Text('This is just a funny monkey. '
-                'I think I need more text, cause imagine this block is very important', maxLines: 3,
+            child: Text(widget.user.about, maxLines: 3,
               overflow: TextOverflow.ellipsis,
               style: AppStyles.h3.copyWith(color: AppColors.grayChateau),),),
-          _buildPhotoMeta(), // аватарка, имя, логин
+          _buildPhotoMeta(widget.user), // аватарка, имя, логин
           // лайки, кнопки: save, visit
           _detailedBlock(),
 
@@ -67,7 +71,7 @@ Widget _detailedBlock() {
   );
 }
 
-Widget _buildPhotoMeta() {
+Widget _buildPhotoMeta(user) {
   return Padding(
     padding: EdgeInsets.symmetric(horizontal: 11, vertical: 14),
     child: Row(
@@ -75,14 +79,14 @@ Widget _buildPhotoMeta() {
       children: <Widget>[
         Row(
           children: [
-            UserAvatar(avatarLink: 'https://live.staticflickr.com/3926/14514264399_89748ebca3_k.jpg',),
+            UserAvatar(avatarLink: user.imagePath,),
             SizedBox(width: 6,),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children:<Widget> [
-                Text('Dianne Miles', style: AppStyles.h1Black,),
-                Text('@Dianne Miles', style: AppStyles.h5Black.copyWith(color: AppColors.manatee),)
+                Text(user.name, style: AppStyles.h1Black,),
+                Text(user.nickname, style: AppStyles.h5Black.copyWith(color: AppColors.manatee),)
               ],
             )
           ],
