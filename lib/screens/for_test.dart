@@ -14,7 +14,13 @@ class _TestState extends State<Test> {
       appBar: AppBar(
         title: Text('Page for tests'),
       ),
-      body: Column(
+      body: Center(
+        child:
+          IconButton(
+            iconSize: 50,
+              onPressed: (){Navigator.pop(context, {'name: ': 'Mikhail', });},
+              icon: Icon(Icons.settings_backup_restore_outlined,)
+          ),
         // BODY!!!
       ),
     );

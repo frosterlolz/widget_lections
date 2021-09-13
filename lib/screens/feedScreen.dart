@@ -14,8 +14,6 @@ class Feed extends StatefulWidget {
 
   @override
   _FeedState createState() => _FeedState();
-
-
 }
 
 class _FeedState extends State<Feed> {
@@ -61,16 +59,17 @@ class _FeedState extends State<Feed> {
         ],
       ),
       body: ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: users.length,
-          itemBuilder: (BuildContext context, int index){
-            return Column(
-                children: <Widget>[
-                  _buildItem(index), // пост целиком (фото+ава+ник, кнопки)
-                  Divider(thickness: 2, color: AppColors.mercury,), // разделительная полоса
-                ]
-            );
-          }),
+            physics: const AlwaysScrollableScrollPhysics(),
+            itemCount: users.length,
+            itemBuilder: (BuildContext context, int index){
+              return Column(
+                  children: <Widget>[
+                    _buildItem(index), // пост целиком (фото+ава+ник, кнопки)
+                    Divider(thickness: 2, color: AppColors.mercury,), // разделительная полоса
+              ]
+              );
+            }
+            ),
     );
   }
 
@@ -79,7 +78,23 @@ class _FeedState extends State<Feed> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Photo(photoLink: user.imagePath),
+        GestureDetector(
+          onTap: (){
+            Navigator.pushNamed(
+                context,
+                '/photoPage',
+                arguments: PhotoPageArguments(
+                  routeSettings: RouteSettings(
+                    arguments: 'feedItem_$index',
+                  ),
+                  user: user,
+                ));
+          },
+          child: Hero(
+            child: Photo(photoLink: user.imagePath),
+            tag: 'feedItem_$index',
+          ),
+        ),
         _buildPhotoMeta(index), // аватарка, имя, логин
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -134,21 +149,19 @@ class _FeedState extends State<Feed> {
           ),
           ShowButton(),
           IconButton(
-              onPressed: (){onClick(context, user);},
-              icon: Icon(CupertinoIcons.text_bubble)),
+            onPressed: (){
+              setState(() {
+                _isAdded = !_isAdded;
+              });
+              // Navigator.pushNamed(
+              //     context,
+              //     '/photoPage',
+              //     arguments: PhotoPageArguments(user: user));
+              },
+            icon: _isAdded ? Icon(Icons.remove_red_eye_outlined) : Icon(Icons.remove_red_eye)),
           LikeButton(true, 10),
         ],
       ),
-    );
-  }
-
-  void onClick(BuildContext context, user) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => PhotoPage(
-        user: user,
-        // parameters
-      )),
     );
   }
 }

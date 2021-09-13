@@ -1,6 +1,11 @@
+import 'dart:async';
+
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:widget_lections/res/res.dart';
 import 'package:widget_lections/screens/feedScreen.dart';
+import 'package:widget_lections/screens/for_test.dart';
+import 'package:widget_lections/utils/checkInternet.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -9,52 +14,89 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with TickerProviderStateMixin{
+  StreamSubscription? subscription;
+
+  @override
+  void initState(){
+    super.initState();
+    subscription =
+    Connectivity().onConnectivityChanged.listen(showConnectivitySnackBar);
+  }
+
+  @override
+  dispose(){
+    subscription!.cancel();
+    super.dispose();
+  }
 
   int currentTab = 0;
+
+  final PageStorageBucket bucket = PageStorageBucket();
+
   List<Widget> pages = [
-    Feed(),
+    Feed(key: PageStorageKey('FeedPage')),
     Container(),
     Container(),
+  ];
+
+  final List<BottomNavBarItem> _tabs = [
+    BottomNavBarItem(
+      asset: AppIcons.like,
+      title: Text('Feed'),
+      activeColor: AppColors.dodgerBlue,
+      inactiveColor: AppColors.manatee,
+      textAlign: TextAlign.center,
+    ),
+  BottomNavBarItem(
+    asset: Icons.menu,
+    title: Text('Search'),
+    activeColor: AppColors.dodgerBlue,
+    inactiveColor: AppColors.manatee,
+    textAlign: TextAlign.center,
+  ),
+  BottomNavBarItem(
+    asset: Icons.menu,
+    title: Text('User'),
+    activeColor: AppColors.dodgerBlue,
+    inactiveColor: AppColors.manatee,
+    textAlign: TextAlign.center,
+  ),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: BottomNavBar(
-        curve: Curves.ease, // animation
-        onItemSelected: (int index){setState(() {currentTab = index;});},
+        showElevation: true,
         itemCornerRadius: 8,
-        items: [
-          BottomNavBarItem(
-            textAlign: TextAlign.left,
-            asset: AppIcons.like,
-            title: Text('Feed'),
-            activeColor: AppColors.dodgerBlue,
-            inactiveColor: AppColors.manatee,
-            //textAlign: TextAlign.center,
-          ),
-          BottomNavBarItem(
-            textAlign: TextAlign.left,
-            asset: Icons.menu,
-            title: Text('Search'),
-            activeColor: AppColors.dodgerBlue,
-            inactiveColor: AppColors.manatee,
-            //textAlign: TextAlign.center,
-          ),
-          BottomNavBarItem(
-            textAlign: TextAlign.left,
-            asset: Icons.menu,
-            title: Text('User'),
-            activeColor: AppColors.dodgerBlue,
-            inactiveColor: AppColors.manatee,
-            // textAlign: TextAlign.center,
-          ),
-        ], // items
+        curve: Curves.ease, // animation
+        onItemSelected: (index) async {
+          if (index == 1) {
+            var value = await Navigator.push(context, MaterialPageRoute(builder: (context) => Test()));
+
+            print(value);
+          } else {
+            setState(() {currentTab = index;});
+          }
+          },
+        items: _tabs,
         currentTab: currentTab,
       ),
-      body: pages[currentTab],
+      body: PageStorage(
+        child: pages[currentTab],
+        bucket: bucket,
+      ),
+          //
     );
+  }
+  void showConnectivitySnackBar(ConnectivityResult result) {
+    final result = (Connectivity().checkConnectivity());
+    var hasInternet = result != ConnectivityResult.none; // true, if i have internet
+    final message = hasInternet ? 'u have internet' : 'sry, no internet';
+    final color = hasInternet ? Colors.green : Colors.red;
+
+    Utils.showTopSnackBar(context, message, color);
   }
 }
 
@@ -175,10 +217,9 @@ class _ItemWidget extends StatelessWidget{
 
     );
   }
-
 }
 
-class BottomNavBarItem{
+class BottomNavBarItem {
   BottomNavBarItem({
       required this.asset,
       required this.title,
