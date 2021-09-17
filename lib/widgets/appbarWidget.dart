@@ -13,9 +13,9 @@ AppBar buildAppBar(BuildContext context) {
       IconButton(
           onPressed: (){
             showModalBottomSheet(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(100),
-              ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(100),
+                ),
                 context: context,
                 builder: (context){
               return ClipRRect(
@@ -26,7 +26,7 @@ AppBar buildAppBar(BuildContext context) {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
-                    children: List.generate(10, (index) => FlutterLogo()),
+                    children: [],
                   ),
                 ),
               );

@@ -1,22 +1,18 @@
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:overlay_support/overlay_support.dart';
+import 'package:widget_lections/screens/feedScreen.dart';
+import 'package:widget_lections/screens/for_test.dart';
 import 'package:widget_lections/screens/home.dart';
 import 'package:widget_lections/screens/photoScreen.dart';
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return OverlaySupport(
-      child: MaterialApp(
-
-        // 1.14.18 5 lesson
+      return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
-        theme: ThemeData(primarySwatch: Colors.blue,),
+        theme: ThemeData(primarySwatch: Colors.blue),
         onGenerateRoute: (RouteSettings settings){
           if (settings.name == '/photoPage') {
             PhotoPageArguments? args = settings.arguments as PhotoPageArguments;
@@ -31,8 +27,33 @@ class MyApp extends StatelessWidget {
             }
           }
         },
-        home: Home(),
-      ),
-    );
+        initialRoute: '/',
+        onUnknownRoute: (RouteSettings setting){
+          return MaterialPageRoute(builder: (context) => FlutterLogo());
+        },
+        routes: {
+          '/': (context) => Home(),
+          '/feed': (context) => Feed(),
+          '/test': (context) => Test(),
+        },
+
+      );
+  }
+}
+
+class ConnectivityOverlay {
+  static final ConnectivityOverlay _singleton = ConnectivityOverlay._internal();
+  factory ConnectivityOverlay() {
+    return _singleton;
+  }
+
+  ConnectivityOverlay._internal();
+  static OverlayEntry? overlayEntry;
+
+  void showOverlay(BuildContext context, Widget child) {
+// реализуйте отображение Overlay.
+  }
+  void removeOverlay(BuildContext context) {
+// реализуйте удаление Overlay.
   }
 }

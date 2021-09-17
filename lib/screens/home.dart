@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:widget_lections/res/res.dart';
 import 'package:widget_lections/screens/feedScreen.dart';
 import 'package:widget_lections/screens/for_test.dart';
-import 'package:widget_lections/utils/checkInternet.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -18,14 +17,24 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
   StreamSubscription? subscription;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    subscription =
-    Connectivity().onConnectivityChanged.listen(showConnectivitySnackBar);
+    subscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      switch (result) {
+        case ConnectivityResult.wifi:
+// Вызовете удаление Overlay тут
+          break;
+        case ConnectivityResult.mobile:
+// Вызовете удаление Overlay тут
+          break;
+        case ConnectivityResult.none:
+// Вызовете отображения Overlay тут
+          break;
+      }
+    });
   }
-
   @override
-  dispose(){
+  void dispose() {
     subscription!.cancel();
     super.dispose();
   }
@@ -48,20 +57,20 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
       inactiveColor: AppColors.manatee,
       textAlign: TextAlign.center,
     ),
-  BottomNavBarItem(
-    asset: Icons.menu,
-    title: Text('Search'),
-    activeColor: AppColors.dodgerBlue,
-    inactiveColor: AppColors.manatee,
-    textAlign: TextAlign.center,
+    BottomNavBarItem(
+      asset: Icons.menu,
+      title: Text('Search'),
+      activeColor: AppColors.dodgerBlue,
+      inactiveColor: AppColors.manatee,
+      textAlign: TextAlign.center,
   ),
-  BottomNavBarItem(
-    asset: Icons.menu,
-    title: Text('User'),
-    activeColor: AppColors.dodgerBlue,
-    inactiveColor: AppColors.manatee,
-    textAlign: TextAlign.center,
-  ),
+    BottomNavBarItem(
+      asset: Icons.menu,
+      title: Text('User'),
+      activeColor: AppColors.dodgerBlue,
+      inactiveColor: AppColors.manatee,
+      textAlign: TextAlign.center,
+    ),
   ];
 
   @override
@@ -89,14 +98,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
       ),
           //
     );
-  }
-  void showConnectivitySnackBar(ConnectivityResult result) {
-    final result = (Connectivity().checkConnectivity());
-    var hasInternet = result != ConnectivityResult.none; // true, if i have internet
-    final message = hasInternet ? 'u have internet' : 'sry, no internet';
-    final color = hasInternet ? Colors.green : Colors.red;
-
-    Utils.showTopSnackBar(context, message, color);
   }
 }
 
@@ -213,8 +214,6 @@ class _ItemWidget extends StatelessWidget{
           ),
         ],
       ),
-      // урок 4 1/31/50
-
     );
   }
 }
