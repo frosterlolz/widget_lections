@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:widget_lections/res/colors.dart';
 
 AppBar buildAppBar(BuildContext context) {
@@ -11,28 +12,15 @@ AppBar buildAppBar(BuildContext context) {
     title: Text('Photo', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)), centerTitle: true,
     actions: <Widget>[
       IconButton(
+        onPressed: (){
+        },
+        icon: Icon(FontAwesomeIcons.commentDots, color: AppColors.grayChateau,),
+      ),
+      IconButton(
           onPressed: (){
-            showModalBottomSheet(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                context: context,
-                builder: (context){
-              return ClipRRect(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.mercury,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [],
-                  ),
-                ),
-              );
-            });
           },
-          icon: Icon(Icons.more_vert_outlined, color: AppColors.grayChateau,))
+          icon: Icon(Icons.more_vert_outlined, color: AppColors.grayChateau,),
+      ),
     ],
   );
 }

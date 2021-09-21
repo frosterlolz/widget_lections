@@ -1,10 +1,9 @@
 import 'dart:async';
-
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:widget_lections/res/res.dart';
 import 'package:widget_lections/screens/feedScreen.dart';
-import 'package:widget_lections/screens/for_test.dart';
+import 'package:widget_lections/screens/my_profile.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -44,9 +43,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
   final PageStorageBucket bucket = PageStorageBucket();
 
   List<Widget> pages = [
-    Feed(key: PageStorageKey('FeedPage')),
+    PhotoListScreen(),
     Container(),
-    Container(),
+    MyProfile(),
   ];
 
   final List<BottomNavBarItem> _tabs = [
@@ -81,13 +80,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
         itemCornerRadius: 8,
         curve: Curves.ease, // animation
         onItemSelected: (index) async {
-          if (index == 1) {
-            var value = await Navigator.push(context, MaterialPageRoute(builder: (context) => Test()));
-
-            print(value);
-          } else {
+          // if (index == 1) {
+          //   var value = await Navigator.push(context, MaterialPageRoute(builder: (context) => Test()));
+          //
+          //   print(value);
+          // } else {
             setState(() {currentTab = index;});
-          }
           },
         items: _tabs,
         currentTab: currentTab,

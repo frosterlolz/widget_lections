@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:widget_lections/screens/feedScreen.dart';
+import 'package:widget_lections/screens/first_screen.dart';
 import 'package:widget_lections/screens/for_test.dart';
-import 'package:widget_lections/screens/home.dart';
 import 'package:widget_lections/screens/photoScreen.dart';
 
 class MyApp extends StatelessWidget {
@@ -32,8 +32,8 @@ class MyApp extends StatelessWidget {
           return MaterialPageRoute(builder: (context) => FlutterLogo());
         },
         routes: {
-          '/': (context) => Home(),
-          '/feed': (context) => Feed(),
+          '/': (context) => MyHomePage(),
+          '/feed': (context) => PhotoListScreen(),
           '/test': (context) => Test(),
         },
 

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:widget_lections/res/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-class Photo extends StatelessWidget {
-  const Photo({Key? key, required this.photoLink}) : super(key: key);
+class BigPhoto extends StatelessWidget {
+  const BigPhoto({Key? key, required this.photoLink}) : super(key: key);
 
   final String photoLink;
   @override
@@ -16,9 +16,10 @@ class Photo extends StatelessWidget {
         child: Container(
           color: AppColors.grayChateau,
           child: CachedNetworkImage(
+            key: UniqueKey(),
             imageUrl: photoLink,
             fit: BoxFit.fill,
-            placeholder: (context, url) => CircularProgressIndicator(),
+            placeholder: (context, url) => Center(child: CircularProgressIndicator()),
             errorWidget: (context, url, error) => Icon(Icons.error),
           ),
         ),
