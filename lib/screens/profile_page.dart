@@ -2,13 +2,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:widget_lections/data_provider.dart';
 import 'package:widget_lections/models/photo_list/model.dart';
 import 'package:widget_lections/res/res.dart';
+import 'package:widget_lections/screens/photoScreen.dart';
+import 'package:widget_lections/widgets/photo.dart';
 
 class Profile extends StatefulWidget {
   Profile(this._userProfile);
 
   final Photo _userProfile;
+
+
 
   @override
   State<StatefulWidget> createState(){
@@ -17,7 +22,32 @@ class Profile extends StatefulWidget {
 }
 
 class ProfileState extends State<Profile> with TickerProviderStateMixin {
+  ScrollController _scrollController = ScrollController();
   Photo? _userProfile;
+  int pageCount = 0;
+  bool isLoading = false;
+  var userPhotos = <Photo>[];
+
+  @override
+  void initState() {
+
+    this._getPhotoByUser(_userProfile!.user!.username.toString(), pageCount);
+    print('load data');
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent * 0.8) {
+        _getPhotoByUser(_userProfile!.user!.username.toString(), pageCount);
+      }
+    });
+    print('set listener');
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   final List<Map> collections = [
     {"title": "Food joint", "image": 'https://i.pinimg.com/originals/8b/5e/be/8b5ebe12c3a61802dfdaaf4df393dda7.png'},
@@ -34,54 +64,156 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) => Builder(
       builder: (context) => Scaffold(
-        // appBar: buildAppBar(context),
-        body: Stack(
-          children: <Widget>[
-            Container(
-              height: 200.0,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors:[AppColors.dodgerBlue, AppColors.alto]),
-              ),
-            ),
-            ListView.builder(
-              itemCount: 7,
-            itemBuilder: _mainListBuilder,
-          ),
-          ]
-        ),
-      ),
-    );
+        body: DefaultTabController(
+          length: 3,
+          child: Stack(
+            children: [
+              Container(
+                    height: 200.0,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors:[AppColors.dodgerBlue, AppColors.alto]),
+                    ),
+                  ),
+              NestedScrollView(
+              headerSliverBuilder: (context, _){
+                return [
+                  SliverList(
+                    delegate: SliverChildListDelegate(
+                      [
+                        _buildHeader(context),
+                        _buildSectionHeader(context),
+                        _buildCollectionsRow(),
+                      ]
+                    )
+                  ),
+                ];
+              },
+              body: Column(
+                children: <Widget>[
+                  Material(
+                    color: Colors.white,
+                    child: TabBar(
+                      labelColor: Colors.black,
+                      unselectedLabelColor: Colors.grey[400],
+                      indicatorWeight: 1,
+                      indicatorColor: Colors.black,
+                      tabs: [
+                        Tab(
+                          icon: Icon(
+                            Icons.grid_on_sharp,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Tab(
+                          icon: Icon(
+                            Icons.error_outline,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Tab(
+                          icon: Icon(
+                            Icons.error_outline,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        _buildListItem(userPhotos),
+                        Container(),
+                        Container(),
+                      ],
+                    ),
+                  ),
+                ],
+              )
 
-  Widget _mainListBuilder(BuildContext context, int index) {
-    if (index == 0) return _buildHeader(context);
-    if (index == 1) return _buildSectionHeader(context);
-    if (index == 2) return _buildCollectionsRow();
-    if (index == 3)
-      return Container(
+              // child: Stack(
+              //   children: <Widget>[
+              //     Container(
+              //       height: 200.0,
+              //       decoration: BoxDecoration(
+              //         gradient: LinearGradient(
+              //           colors:[AppColors.dodgerBlue, AppColors.alto]),
+              //       ),
+              //     ),
+              //     SingleChildScrollView(
+              //       controller: _scrollController,
+              //       child: _mainListBuilder(context),),]
+              // ),
+            ),
+            ],
+          ),
+        ),),);
+
+  Widget _mainListBuilder(BuildContext context) {
+    return Column(
+      children: [
+        _buildHeader(context),
+        _buildSectionHeader(context),
+        _buildCollectionsRow(),
+        Container(
           color: Colors.white,
           padding: EdgeInsets.only(left: 20.0, top: 20.0, bottom: 10.0),
-          child: Text("Most liked posts",)
-              // style: Theme.of(context).textTheme.title)
-      );
-    return _buildListItem();
-  }
-
-    Widget _buildListItem() {
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(5.0),
-        child: CachedNetworkImage(imageUrl: _userProfile!.urls!.regular!,),
-      ),
+          child: Row(
+              children: [Icon(Icons.photo), Text(" Photos"),]
+          ),
+        ),
+        _gallery(),
+        // _buildListItem(userPhotos),
+      ],
     );
   }
+
+  // Widget _buildListItem(List<Photo> userPhotos) {
+  //   return Container(
+  //       color: Colors.white,
+  //       // padding: EdgeInsets.symmetric(horizontal: 50.0, vertical: 10.0),
+  //       child: _buildListItemM(userPhotos)
+  //   );
+  // }
+
+  Widget _gallery() => Scaffold(
+    body: GridView.count(
+      crossAxisCount: 3,
+      childAspectRatio: 1.0,
+      // НАЙТИ URL
+      children: imageUrls.map(_createGridTileWidget).toList(),
+    ),
+  );
+
+  // Widget _buildListItem(List<Photo> userPhoto) => SingleChildScrollView(
+  //   child: GridView.builder(
+  //     scrollDirection: Axis.vertical,
+  //     shrinkWrap: true,
+  //     itemBuilder: (context, index) {
+  //       if (index == userPhotos.length) {
+  //         return Center(
+  //           child: Opacity(
+  //             opacity: isLoading ? 1 : 0,
+  //             child: CircularProgressIndicator(),
+  //           ),
+  //         );
+  //       }
+  //       return _buildPhoto(userPhotos[index]);
+  //     },
+  //     itemCount: userPhotos.length,
+  //     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+  //       crossAxisCount: 3,
+  //     ),
+  //   ),
+  // );
+
+
 
   Container _buildSectionHeader(BuildContext context) {
     return Container(
       color: Colors.white,
-      padding: EdgeInsets.symmetric(horizontal: 20.0),
+      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -89,13 +221,6 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
             "Collection",
             // style: Theme.of(context).textTheme.title,
           ),
-          TextButton(
-            onPressed: () {},
-            child: Text(
-              "Create new",
-              style: TextStyle(color: Colors.blue),
-            ),
-          )
         ],
       ),
     );
@@ -127,10 +252,6 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
                     height: 5.0,
                   ),
                   Text(collections[index]['title'],
-                      // style: Theme.of(context)
-                      //     .textTheme
-                      //     .subhead!
-                      //     .merge(TextStyle(color: Colors.grey.shade600))
                   )
                 ],
               ));
@@ -165,20 +286,7 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
                   SizedBox(
                     height: 5.0,
                   ),
-                  Flexible(
-                    child: RichText(
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      strutStyle: StrutStyle(fontSize: 12.0),
-                      text: TextSpan(
-                          style: TextStyle(color: Colors.black),
-                          text: '${_userProfile!.user!.bio ?? 'no BIO'}'),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 16.0,
-                  ),
+                  buildSocials(_userProfile!),
                   Container(
                     height: 40.0,
                     child: Row(
@@ -187,11 +295,11 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
                         Expanded(
                           child: ListTile(
                             title: Text(
-                              "302",
+                              '${_userProfile!.user!.totalPhotos!}',
                               textAlign: TextAlign.center,
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            subtitle: Text("Posts".toUpperCase(),
+                            subtitle: Text("PHOTOS".toUpperCase(),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 12.0)),
                           ),
@@ -199,11 +307,11 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
                         Expanded(
                           child: ListTile(
                             title: Text(
-                              "10.3K",
+                              '${_userProfile!.user!.totalLikes!}',
                               textAlign: TextAlign.center,
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            subtitle: Text("Followers".toUpperCase(),
+                            subtitle: Text("LIKES".toUpperCase(),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 12.0)),
                           ),
@@ -211,11 +319,11 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
                         Expanded(
                           child: ListTile(
                             title: Text(
-                              "120",
+                              '${_userProfile!.user!.totalCollections!}',
                               textAlign: TextAlign.center,
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            subtitle: Text("Following".toUpperCase(),
+                            subtitle: Text("COLLECTIONS".toUpperCase(),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 12.0)),
                           ),
@@ -240,87 +348,6 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildName(Photo user) => Column(
-    children: [
-      Text(
-        user.user!.name!,
-        style: TextStyle(fontWeight:FontWeight.bold, fontSize: 24),
-      ),
-      Text('${user.user!.bio ?? 'no BIO'}',
-        style: AppStyles.h5Black.copyWith(color: AppColors.manatee),
-        maxLines: 3,
-      )
-    ],
-  );
-
-  // Widget buildAbout(Photo user) => Container(
-  //   padding: EdgeInsets.symmetric(horizontal: 48),
-  //   child: Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       Text(
-  //         'About me',
-  //         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
-  //       const SizedBox(height: 16),
-  //       Text(
-  //         '${user.user!.bio ?? 'no BIO'}',
-  //         style: TextStyle(fontSize: 16, height: 1.4),
-  //       ),
-  //     ],
-  //   ),
-  // );
-
-  // Widget animatedPicture(Photo userProfile) => AnimatedBuilder(
-  //   animation: _controller,
-  //   builder: (BuildContext context, Widget? child) {
-  //     return Transform.rotate(
-  //       angle: _controller.value * 2 * pi,
-  //       child: child,
-  //     );
-  //   },
-  //   child: CachedNetworkImage(
-  //     imageUrl: 'https://clipart-best.com/img/trollface/trollface-clip-art-18.png',
-  //     //fit: BoxFit.cover,
-  //     width: 128,
-  //     height: 128,
-  //   ),
-  // );
-
-  Column _infoCell({required String title, required String value}) {
-    return Column(
-      children: <Widget>[
-        Text(
-          title,
-          style: TextStyle(fontFamily: 'OpenSans', fontWeight: FontWeight.w300, fontSize: 14),),
-        SizedBox(height: 8,),
-        Text(value,
-        style: TextStyle(fontFamily: 'OpenSans', fontWeight: FontWeight.w700, fontSize: 14),),
-      ],
-    );
-  }
-
-  Widget detailedInfo(Photo user) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 48),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          _infoCell(title: 'Total photos', value: user.user!.totalPhotos!.toString()),
-          Container(width: 1,
-            height: 40,
-            color: AppColors.grayChateau,
-          ),
-          _infoCell(title: 'Total likes', value: user.user!.totalLikes!.toString()),
-          Container(width: 1,
-            height: 40,
-            color: AppColors.grayChateau,
-          ),
-          _infoCell(title: 'Total collections', value: user.user!.totalCollections!.toString()),
         ],
       ),
     );
@@ -357,5 +384,35 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
     } else {
       throw 'Could not launch $url';
     }
+  }
+  void _getPhotoByUser(String nickname, int page) async {
+    if (!isLoading) {
+      setState(() {
+        isLoading = true;
+      });
+      var tempList = await DataProvider.getPhotoByUser(nickname, page, 10);
+
+      setState(() {
+        isLoading = false;
+        userPhotos.addAll(tempList.photos!);
+        pageCount++;
+      });
+    }
+  }
+
+  Widget _buildPhoto(Photo userPhoto) {
+    return GestureDetector(
+      onTap: (){
+        Navigator.pushNamed(
+            context,
+            '/photoPage',
+            arguments: PhotoPageArguments(
+                routeSettings: RouteSettings(
+                    arguments: 'profilePage_${userPhoto.id}'),
+                user: userPhoto)
+        );
+      },
+      child: BigPhoto(photoLink: userPhoto.urls!.regular!, tag: 'profilePage_${userPhoto.id}'),
+    );
   }
 }

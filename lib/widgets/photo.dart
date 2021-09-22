@@ -13,7 +13,7 @@ class BigPhoto extends StatelessWidget {
     return Hero(
       tag: tag,
       child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: EdgeInsets.symmetric(horizontal: 3, vertical: 5),
         child: ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(17)),
           child: Container(
