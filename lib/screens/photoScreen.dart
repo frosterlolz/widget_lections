@@ -67,9 +67,7 @@ class _PhotoPageState extends State<PhotoPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         // PHOTO
-        Hero(
-            tag: tag!,
-            child: BigPhoto(photoLink: widget.user.urls!.regular!)),
+            BigPhoto(photoLink: widget.user.urls!.regular!, tag: tag!,),
         // ABOUT
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),

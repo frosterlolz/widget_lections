@@ -28,12 +28,12 @@ class _PhotoSearchState extends State<PhotoSearch> {
   void initState() {
     super.initState();
 
-    this._getSearchData(query, pageCount);
+    this._getData(pageCount);
     print('load data');
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent * 0.8) {
-        _getSearchData(query, pageCount);
+        query == '' ? _getData(pageCount): _getSearchData(query, pageCount);
       }
     });
     print('set listener');
@@ -128,10 +128,9 @@ class _PhotoSearchState extends State<PhotoSearch> {
                   user: data)
           );
         },
-        child: Hero(
-          child: BigPhoto(photoLink: data.urls!.regular!),
-          tag: 'feedItem_${data.id}',
-        )
+        child: BigPhoto(
+              photoLink: data.urls!.regular!,
+              tag: 'searchItem_${data.id}'),
     );
   }
 
@@ -186,6 +185,21 @@ class _PhotoSearchState extends State<PhotoSearch> {
     );
   }
 
+  void _getData(int page) async {
+    if (!isLoading) {
+      setState(() {
+        isLoading = true;
+      });
+      var tempList = await DataProvider.getPhotos(page, 10);
+
+      setState(() {
+        isLoading = false;
+        data.addAll(tempList.photos!);
+        pageCount++;
+      });
+    }
+  }
+
   void _getSearchData(String query, int page) async {
     print('getSearchData $query');
     if (!isLoading) {
@@ -209,8 +223,12 @@ class _PhotoSearchState extends State<PhotoSearch> {
   );
 
   Future searchPhoto(String query) async => debounce(() async {
-    print ('search new');
-    final data = await DataProvider.getSearchPhoto(query, pageCount, 10);
+    print ('search new, query = $query');
+
+    final data =
+    (query == ''
+        ? await DataProvider.getPhotos(pageCount, 10)
+        : await DataProvider.getSearchPhoto(query, pageCount, 10));
     // _getSearchData(query, pageCount);
 
     if (!mounted) return;

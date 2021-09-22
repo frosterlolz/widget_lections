@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:widget_lections/models/photo_list/model.dart';
 import 'package:widget_lections/res/res.dart';
 import 'package:widget_lections/screens/feedScreen.dart';
 import 'package:widget_lections/screens/my_profile.dart';
 import 'package:widget_lections/screens/photo_search.dart';
+import 'package:widget_lections/screens/user_profile.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -91,7 +93,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
         children: [
         PhotoListScreen(),
         PhotoSearch(),
-        MyProfile(),
+        ProfileTwoPage()
+        // MyProfile(),
       ],),
       // body: PageStorage(
       //   child: pages[currentTab],

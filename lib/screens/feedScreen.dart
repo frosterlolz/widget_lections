@@ -111,10 +111,7 @@ class _PhotoListState extends State<PhotoListScreen> {
                   user: data)
           );
         },
-        child: Hero(
-            child: BigPhoto(photoLink: data.urls!.regular!),
-          tag: 'feedItem_${data.id}',
-        )
+      child: BigPhoto(photoLink: data.urls!.regular!, tag: 'feedItem_${data.id}'),
     );
   }
 
