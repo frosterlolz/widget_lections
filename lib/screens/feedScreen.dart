@@ -150,8 +150,8 @@ class _PhotoListState extends State<PhotoListScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children:<Widget> [
                         Text(
-                          data.user!.name!, style: AppStyles.h2Black,),
-                        Text('@${data.user!.twitterUsername ?? ''}', style: AppStyles.h5Black.copyWith(color: AppColors.manatee),)
+                          data.user!.name!, style: AppStyles.h3.copyWith(color: AppColors.black) ),
+                        Text('@${data.user!.twitterUsername ?? ''}', style: AppStyles.h5Black.copyWith(color: AppColors.manatee),),
                       ],
                     ),
                   )

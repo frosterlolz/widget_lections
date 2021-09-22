@@ -31,12 +31,13 @@ class _LikeButtonState extends State<LikeButton> {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () async {
-        isLiked
-            ? DataProvider.unlikePhoto(id)
-            : DataProvider.likePhoto(id);
+        // isLiked
+        //     ? DataProvider.unlikePhoto(id)
+        //     : DataProvider.likePhoto(id);
+        DataProvider.isLikePhoto(id, isLiked);
         setState(() {
+          isLiked ? likeCount-- : likeCount++;
           isLiked = !isLiked;
-          likeCount++;
         });
       },
       child: Center(

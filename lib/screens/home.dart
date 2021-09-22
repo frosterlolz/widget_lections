@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:widget_lections/res/res.dart';
 import 'package:widget_lections/screens/feedScreen.dart';
 import 'package:widget_lections/screens/my_profile.dart';
+import 'package:widget_lections/screens/photo_search.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -40,13 +41,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
 
   int currentTab = 0;
 
-  final PageStorageBucket bucket = PageStorageBucket();
+  // final PageStorageBucket bucket = PageStorageBucket();
 
-  List<Widget> pages = [
-    PhotoListScreen(),
-    Container(),
-    MyProfile(),
-  ];
+  // List<Widget> pages = [
+  //   PhotoListScreen(),
+  //   PhotoSearch(),
+  //   MyProfile(),
+  // ];
 
   final List<BottomNavBarItem> _tabs = [
     BottomNavBarItem(
@@ -80,20 +81,22 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
         itemCornerRadius: 8,
         curve: Curves.ease, // animation
         onItemSelected: (index) async {
-          // if (index == 1) {
-          //   var value = await Navigator.push(context, MaterialPageRoute(builder: (context) => Test()));
-          //
-          //   print(value);
-          // } else {
             setState(() {currentTab = index;});
           },
         items: _tabs,
         currentTab: currentTab,
       ),
-      body: PageStorage(
-        child: pages[currentTab],
-        bucket: bucket,
-      ),
+      body: IndexedStack(
+        index: currentTab,
+        children: [
+        PhotoListScreen(),
+        PhotoSearch(),
+        MyProfile(),
+      ],),
+      // body: PageStorage(
+      //   child: pages[currentTab],
+      //   bucket: bucket,
+      // ),
           //
     );
   }

@@ -49,19 +49,6 @@ class DataProvider {
     }
   }
 
-  // получить фото
-  static Future<PhotoList> getPhotos(int page, int perPage) async {
-    var response = await http.get(
-        Uri.parse('https://api.unsplash.com/photos?page=$page&per_page=$perPage'),
-        headers: {'Authorization': 'Bearer $authToken'});
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return PhotoList.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Error: ${response.reasonPhrase}');
-    }
-  }
-
   // получить рандомное фото
   static Future<Photo> getRandomPhoto() async {
     var response = await http.get(Uri.parse('https://api.unsplash.com/photos/random'),
@@ -101,6 +88,65 @@ class DataProvider {
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return true; //returns 201 - Created
+    } else {
+      throw Exception('Error: ${response.reasonPhrase}');
+    }
+  }
+
+  static Future<bool> isLikePhoto(String photoId, bool isLike) async {
+    var like = await http
+        .post(Uri.parse('https://api.unsplash.com/photos/$photoId/like'), headers: {
+      'Authorization': 'Bearer $authToken',
+    });
+    var unLike = await http
+        .delete(Uri.parse('https://api.unsplash.com/photos/$photoId/like'), headers: {
+      'Authorization': 'Bearer $authToken',
+    });
+    var response = isLike ? like : unLike;
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return true; //returns 201 - Created
+    } else {
+      throw Exception('Error: ${response.reasonPhrase}');
+    }
+  }
+
+  // получить фото
+  static Future<PhotoList> getPhotos(int page, int perPage) async {
+    var response = await http.get(
+        Uri.parse('https://api.unsplash.com/photos?page=$page&per_page=$perPage'),
+        headers: {'Authorization': 'Bearer $authToken'});
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return PhotoList.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Error: ${response.reasonPhrase}');
+    }
+  }
+
+  // IT WORKS!!!
+  static Future<PhotoList> getSearchPhoto(String query, int page, int perPage) async {
+    var response = await http.get(Uri.parse(
+        'https://api.unsplash.com/search/photos?query=$query&page=$page&per_page=$perPage'),
+        headers: {'Authorization': 'Bearer $authToken'});
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      Map<String,dynamic> map = json.decode(response.body);
+      List<dynamic> data = map["results"];
+      return PhotoList.fromJson(data);
+    } else {
+      throw Exception('Error: ${response.reasonPhrase}');
+    }
+  }
+
+  // WORKED!
+  static Future<PhotoList> getPhotoByUser(String nickname, int page, int perPage) async {
+    var response = await http.get(
+        Uri.parse('https://api.unsplash.com/users/$nickname/photos?&page=$page&per_page=$perPage'),
+        headers: {'Authorization': 'Bearer $authToken'});
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return PhotoList.fromJson(json.decode(response.body));
     } else {
       throw Exception('Error: ${response.reasonPhrase}');
     }
