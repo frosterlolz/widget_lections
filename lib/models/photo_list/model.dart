@@ -371,3 +371,107 @@ class ProfileImage {
     return data;
   }
 }
+
+class CollectionList {
+  List<Collection>? collections;
+
+  CollectionList({this.collections});
+
+  CollectionList.fromJson(List<dynamic> json) {
+    collections = <Collection>[];
+    json.forEach((value) {
+      collections!.add(Collection.fromJson(value as Map<String, dynamic>));
+    });
+  }
+  List<dynamic> toJson() {
+    List<dynamic> result = <dynamic>[];
+
+    collections!.forEach((element) {
+      result.add(element.toJson());
+    });
+
+    return result;
+  }
+}
+
+class Collection{
+  String? id;
+  String? title;
+  String? description;
+  DateTime? publishedAt;
+  DateTime? lastCollectedAt;
+  DateTime? updatedAt;
+  bool? curated;
+  bool? featured;
+  int? totalPhotos;
+  bool? private;
+  String? shareKey;
+  // List<Tag>? tags;
+  Links? links;
+  Sponsor? user;
+  Photo? coverPhoto;
+  // List<PreviewPhoto>? previewPhotos;
+
+  Collection({
+    this.id,
+    this.title,
+    this.description,
+    this.publishedAt,
+    this.lastCollectedAt,
+    this.updatedAt,
+    this.curated,
+    this.featured,
+    this.totalPhotos,
+    this.private,
+    this.shareKey,
+    // this.tags,
+    this.links,
+    this.user,
+    this.coverPhoto,
+    // this.previewPhotos,
+  });
+
+  Collection.fromJson(Map<String, dynamic> json) {
+    id = json["id"];
+    title = json["title"];
+    description = json["description"];
+    publishedAt = DateTime.parse(json["published_at"]);
+    lastCollectedAt = DateTime.parse(json["last_collected_at"]);
+    updatedAt = DateTime.parse(json["updated_at"]);
+    curated = json["curated"];
+    featured = json["featured"];
+    totalPhotos = json["total_photos"];
+    private = json["private"];
+    shareKey = json["share_key"];
+    // tags: List<Tag>.from(json["tags"].map((x) => Tag.fromJson(x)));
+    links = json['links'] != null ? new Links.fromJson(json['links']) : null;
+    // links = Links.fromJson(json["links"]);
+    user = json['user'] != null ? new Sponsor.fromJson(json['user']) : null;
+    // user = Sponsor.fromJson(json["user"]);
+    coverPhoto = Photo.fromJson(json["cover_photo"]);
+    // previewPhotos: List<PreviewPhoto>.from(json["preview_photos"].map((x) => PreviewPhoto.fromJson(x))),
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data["title"] = this.title;
+    data['description'] = this.description;
+    data["published_at"] = this.publishedAt;
+    data["last_collected_at"] = this.lastCollectedAt;
+    data["updated_at"] = this.updatedAt;
+    data["curated"] = this.curated;
+    data["featured"] = this.featured;
+    data["total_photos"] = this.totalPhotos;
+    data["private"] = this.private;
+    data["share_key"] = this.shareKey;
+    // "tags": List<dynamic>.from(tags.map((x) => x.toJson())),
+    data['links'] = this.links!.toJson();
+    if (this.user != null) {
+      data['user'] = this.user!.toJson();
+    }
+    data["cover_photo"] = this.coverPhoto!.toJson();
+    // "preview_photos": List<dynamic>.from(previewPhotos.map((x) => x.toJson())),
+    return data;
+  }
+}

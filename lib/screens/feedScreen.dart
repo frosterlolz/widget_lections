@@ -52,11 +52,14 @@ class _PhotoListState extends State<PhotoListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // leading: IconButton(
-        //   icon: Icon(Icons.arrow_back, color: Colors.white),
-        //   onPressed: () => Navigator.of(context).pop(),
-        // ),
-        title: Text("Unsplash photos Gallery"),
+        automaticallyImplyLeading: false,
+        title: Text("Unsplash photos Gallery",
+        style: TextStyle(
+          fontStyle: FontStyle.italic,
+          fontSize: 17
+        ),
+        ),
+        centerTitle: false,
       ),
       body: _buildListView(context, data),
     );

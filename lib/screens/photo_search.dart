@@ -64,7 +64,7 @@ class _PhotoSearchState extends State<PhotoSearch> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
         // leading: null,

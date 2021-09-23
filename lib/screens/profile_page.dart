@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:widget_lections/data_provider.dart';
@@ -13,38 +14,43 @@ class Profile extends StatefulWidget {
 
   final Photo _userProfile;
 
-
-
   @override
-  State<StatefulWidget> createState(){
-    return ProfileState(_userProfile);
-  }
+  State<StatefulWidget> createState() => ProfileState(_userProfile);
 }
 
 class ProfileState extends State<Profile> with TickerProviderStateMixin {
   ScrollController _scrollController = ScrollController();
+  ScrollController _horyzontalController = ScrollController();
   Photo? _userProfile;
+  int colPageCount = 0;
   int pageCount = 0;
   bool isLoading = false;
-  var userPhotos = <Photo>[];
+  bool isLoadingCol = false;
+  List<Photo> userPhotos = [];
+  List<Collection> data = [];
 
   @override
   void initState() {
-
-    this._getPhotoByUser(_userProfile!.user!.username.toString(), pageCount);
-    print('load data');
+    _getCollectionsByUser(_userProfile!.user!.username.toString(),colPageCount);
+    _getPhotoByUser(_userProfile!.user!.username.toString(), pageCount);
+    super.initState();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent * 0.8) {
         _getPhotoByUser(_userProfile!.user!.username.toString(), pageCount);
       }
     });
-    print('set listener');
-    super.initState();
+    _horyzontalController.addListener(() {
+      if (_horyzontalController.position.pixels >=
+          _horyzontalController.position.maxScrollExtent * 0.8) {
+        _getCollectionsByUser(_userProfile!.user!.username.toString(), colPageCount);
+      }
+    });
   }
 
   @override
   void dispose() {
+    // _horyzontalController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -56,159 +62,167 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
     {"title": "Nepal", "image": 'https://i.pinimg.com/originals/8b/5e/be/8b5ebe12c3a61802dfdaaf4df393dda7.png'},
   ];
 
-  ProfileState(Photo userProfile){
+  final String testImage = 'https://i.pinimg.com/originals/8b/5e/be/8b5ebe12c3a61802dfdaaf4df393dda7.png';
+
+
+      ProfileState(Photo userProfile){
     _userProfile = userProfile;
   }
 
-
   @override
   Widget build(BuildContext context) => Builder(
-      builder: (context) => Scaffold(
-        body: DefaultTabController(
-          length: 3,
-          child: Stack(
-            children: [
-              Container(
-                    height: 200.0,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors:[AppColors.dodgerBlue, AppColors.alto]),
-                    ),
-                  ),
-              NestedScrollView(
-              headerSliverBuilder: (context, _){
-                return [
-                  SliverList(
-                    delegate: SliverChildListDelegate(
-                      [
-                        _buildHeader(context),
-                        _buildSectionHeader(context),
-                        _buildCollectionsRow(),
-                      ]
-                    )
-                  ),
-                ];
-              },
-              body: Column(
-                children: <Widget>[
-                  Material(
-                    color: Colors.white,
-                    child: TabBar(
-                      labelColor: Colors.black,
-                      unselectedLabelColor: Colors.grey[400],
-                      indicatorWeight: 1,
-                      indicatorColor: Colors.black,
-                      tabs: [
-                        Tab(
-                          icon: Icon(
-                            Icons.grid_on_sharp,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Tab(
-                          icon: Icon(
-                            Icons.error_outline,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Tab(
-                          icon: Icon(
-                            Icons.error_outline,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: TabBarView(
-                      children: [
-                        _buildListItem(userPhotos),
-                        Container(),
-                        Container(),
-                      ],
-                    ),
-                  ),
-                ],
-              )
+    builder: (context) => Scaffold(
+      appBar: PreferredSize(
+          preferredSize: Size.fromHeight(40),
+          child: _buildAppBar()
+      ),
+      body: _buildTabController()
+    ),
+  );
 
-              // child: Stack(
-              //   children: <Widget>[
-              //     Container(
-              //       height: 200.0,
-              //       decoration: BoxDecoration(
-              //         gradient: LinearGradient(
-              //           colors:[AppColors.dodgerBlue, AppColors.alto]),
-              //       ),
-              //     ),
-              //     SingleChildScrollView(
-              //       controller: _scrollController,
-              //       child: _mainListBuilder(context),),]
-              // ),
+  Widget _buildAppBar() => Container(
+    decoration: BoxDecoration(
+      border: Border(
+        bottom: BorderSide(
+          color: AppColors.mercury,
+        ),
+      ),
+    ),
+    child: AppBar(
+      backgroundColor: AppColors.white,
+      title: Text(_userProfile!.user!.username!,
+        style: TextStyle(color: AppColors.black, fontWeight: FontWeight.w600),),
+      centerTitle: false,
+      elevation: 0,
+      actions: [
+        IconButton(icon: Icon(Icons.add_box_outlined, color: Colors.black,),
+          onPressed: () => print("Add"),),
+        IconButton(icon: Icon(Icons.menu, color: Colors.black,),
+          onPressed: () => _onButtonPressed(),)
+      ],
+    ),
+  );
+
+  Widget _buildTabController() => DefaultTabController(
+    length: 3,
+    child: Stack(
+      children: [
+        Container(
+          height: 200.0,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+                colors:[AppColors.dodgerBlue, AppColors.alto]
             ),
-            ],
           ),
-        ),),);
+        ),
+        NestedScrollView(
+            controller: _scrollController,
+            headerSliverBuilder: (context, _){
+              return [
+                SliverList(
+                    delegate: SliverChildListDelegate(
+                        [
+                          _mainListBuilder(context, data),
+                        ]
+                    )
+                ),
+              ];
+            },
+            body: Column(
+              children: <Widget>[
+                Material(
+                  color: Colors.white,
+                  child: TabBar(
+                    labelColor: Colors.black,
+                    unselectedLabelColor: Colors.grey[400],
+                    indicatorWeight: 1,
+                    indicatorColor: Colors.black,
+                    tabs: [
+                      Tab(
+                        icon: Icon(
+                          Icons.grid_on_sharp,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Tab(
+                        icon: Icon(
+                          Icons.error_outline,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Tab(
+                        icon: Icon(
+                          Icons.error_outline,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      _gallery(),
+                      Container(),
+                      Container(),
+                    ],
+                  ),
+                ),
+              ],
+            )
+        ),
+      ],
+    ),
+  );
 
-  Widget _mainListBuilder(BuildContext context) {
+  Widget _mainListBuilder(BuildContext context, List<Collection> data) {
     return Column(
       children: [
         _buildHeader(context),
         _buildSectionHeader(context),
-        _buildCollectionsRow(),
-        Container(
-          color: Colors.white,
-          padding: EdgeInsets.only(left: 20.0, top: 20.0, bottom: 10.0),
-          child: Row(
-              children: [Icon(Icons.photo), Text(" Photos"),]
-          ),
-        ),
-        _gallery(),
-        // _buildListItem(userPhotos),
+        _buildCollectionsRow(context, data),
       ],
     );
   }
 
-  // Widget _buildListItem(List<Photo> userPhotos) {
-  //   return Container(
-  //       color: Colors.white,
-  //       // padding: EdgeInsets.symmetric(horizontal: 50.0, vertical: 10.0),
-  //       child: _buildListItemM(userPhotos)
-  //   );
-  // }
+  Widget _buildCollectionsRow(context, List<Collection> data) {
+    return Container(
+      height: 200.0,
+      child: ListView.builder(
+        controller: _horyzontalController,
+        scrollDirection: Axis.horizontal,
+        itemCount: data.length,
+        itemBuilder: (context, int index) {
+          return data.isEmpty
+              ? CircularProgressIndicator()
+              : BigPhoto(photoLink: data[index].coverPhoto!.urls!.small!,
+              tag: '123');
+        },
+      ),
+    );
+  }
 
   Widget _gallery() => Scaffold(
-    body: GridView.count(
-      crossAxisCount: 3,
-      childAspectRatio: 1.0,
-      // НАЙТИ URL
-      children: imageUrls.map(_createGridTileWidget).toList(),
+    body: GridView.builder(
+      scrollDirection: Axis.vertical,
+      shrinkWrap: true,
+      itemBuilder: (context, index) {
+        if (index == userPhotos.length) {
+          return Center(
+            child: Opacity(
+              opacity: isLoading ? 1 : 0,
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        return _buildPhoto(userPhotos[index]);
+      },
+      itemCount: userPhotos.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+      ),
     ),
   );
-
-  // Widget _buildListItem(List<Photo> userPhoto) => SingleChildScrollView(
-  //   child: GridView.builder(
-  //     scrollDirection: Axis.vertical,
-  //     shrinkWrap: true,
-  //     itemBuilder: (context, index) {
-  //       if (index == userPhotos.length) {
-  //         return Center(
-  //           child: Opacity(
-  //             opacity: isLoading ? 1 : 0,
-  //             child: CircularProgressIndicator(),
-  //           ),
-  //         );
-  //       }
-  //       return _buildPhoto(userPhotos[index]);
-  //     },
-  //     itemCount: userPhotos.length,
-  //     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-  //       crossAxisCount: 3,
-  //     ),
-  //   ),
-  // );
-
-
 
   Container _buildSectionHeader(BuildContext context) {
     return Container(
@@ -218,49 +232,14 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(
-            "Collection",
-            // style: Theme.of(context).textTheme.title,
+            "Collections",
           ),
         ],
       ),
     );
   }
 
-    Container _buildCollectionsRow() {
-    return Container(
-      color: Colors.white,
-      height: 200.0,
-      padding: EdgeInsets.symmetric(horizontal: 10.0),
-      child: ListView.builder(
-        physics: BouncingScrollPhysics(),
-        scrollDirection: Axis.horizontal,
-        itemCount: collections.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Container(
-              margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-              width: 150.0,
-              height: 200.0,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Expanded(
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(5.0),
-                          child: CachedNetworkImage(
-                              fit: BoxFit.cover, imageUrl: collections[index]['image'],))),
-                  SizedBox(
-                    height: 5.0,
-                  ),
-                  Text(collections[index]['title'],
-                  )
-                ],
-              ));
-        },
-      ),
-    );
-  }
-
-    Container _buildHeader(BuildContext context) {
+  Container _buildHeader(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(top: 50.0),
       height: 240.0,
@@ -268,7 +247,7 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
         children: <Widget>[
           Container(
             padding: EdgeInsets.only(
-                top: 40.0, left: 40.0, right: 40.0, bottom: 10.0),
+                top: 40.0, left: 21.0, right: 21.0, bottom: 10.0),
             child: Material(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0)),
@@ -281,16 +260,14 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
                   ),
                   Text(
                     _userProfile!.user!.name!,
-                    // style: Theme.of(context).textTheme.title,
+                    style: AppStyles.h3.copyWith(color: Colors.black),
                   ),
-                  SizedBox(
-                    height: 5.0,
-                  ),
+                  SizedBox(height: 5.0,),
                   buildSocials(_userProfile!),
                   Container(
                     height: 40.0,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Expanded(
                           child: ListTile(
@@ -299,7 +276,7 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
                               textAlign: TextAlign.center,
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            subtitle: Text("PHOTOS".toUpperCase(),
+                            subtitle: Text("Photos".toUpperCase(),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 12.0)),
                           ),
@@ -323,7 +300,7 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
                               textAlign: TextAlign.center,
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            subtitle: Text("COLLECTIONS".toUpperCase(),
+                            subtitle: Text("Collections".toUpperCase(),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 12.0)),
                           ),
@@ -378,6 +355,75 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildPhoto(Photo userPhoto) {
+    return GestureDetector(
+      onTap: (){
+        Navigator.pushNamed(
+            context,
+            '/photoPage',
+            arguments: PhotoPageArguments(
+                routeSettings: RouteSettings(
+                    arguments: 'profilePage_${userPhoto.id}'),
+                user: userPhoto)
+        );
+      },
+      child: BigPhoto(photoLink: userPhoto.urls!.regular!, tag: 'profilePageGrid_${userPhoto.id}'),
+    );
+  }
+  void _onButtonPressed() {
+    {
+      showModalBottomSheet(
+          isScrollControlled: true,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(25),
+                topRight: const Radius.circular(25),
+              )
+          ),
+          context: context,
+          builder: (context){
+            return SafeArea(
+              child: Wrap( // совместно с isScrollControlled позволяет контролировать высотку ботом шита
+                children: <Widget>[
+                  ListTile(
+                    title: Center(child: Text('Clear cache')),
+                    onTap: clearCache,
+                  ),
+                  ListTile(
+                    title: Center(child: Text('HARM')),
+                    onTap: ()=> (){},
+                  ),
+                  ListTile(
+                    title: Center(child: Text('BULLY')),
+                    onTap: ()=> (){},
+                  ),
+                  ListTile(
+                    title: Center(child: Text('SPAM')),
+                    onTap: ()=> (){},
+                  ),
+                  ListTile(
+                    title: Center(child: Text('COPYRIGHT')),
+                    onTap: ()=> (){},
+                  ),
+                  ListTile(
+                    title: Center(child: Text('HATE')),
+                    onTap: (){},
+                  )
+                ],
+              ),
+            );
+          });
+    }
+  }
+
+  void clearCache() {
+
+    DefaultCacheManager().emptyCache();
+    imageCache!.clear();
+    imageCache!.clearLiveImages();
+    setState(() {});
+  }
+
   _launchURL(String url) async {
     if (await canLaunch(url)) {
       await launch(url);
@@ -400,19 +446,19 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
     }
   }
 
-  Widget _buildPhoto(Photo userPhoto) {
-    return GestureDetector(
-      onTap: (){
-        Navigator.pushNamed(
-            context,
-            '/photoPage',
-            arguments: PhotoPageArguments(
-                routeSettings: RouteSettings(
-                    arguments: 'profilePage_${userPhoto.id}'),
-                user: userPhoto)
-        );
-      },
-      child: BigPhoto(photoLink: userPhoto.urls!.regular!, tag: 'profilePage_${userPhoto.id}'),
-    );
+  void _getCollectionsByUser(String username, int page) async {
+    if (!isLoadingCol) {
+      setState(() {
+        isLoadingCol = true;
+      });
+      var tempList = await DataProvider.getCollectionsByUser(username, page, 10);
+
+      setState(() {
+        isLoadingCol = false;
+        data.addAll(tempList.collections!);
+        colPageCount++;
+      });
+    }
   }
+
 }

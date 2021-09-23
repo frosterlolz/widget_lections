@@ -140,13 +140,25 @@ class DataProvider {
   }
 
   // WORKED!
-  static Future<PhotoList> getPhotoByUser(String nickname, int page, int perPage) async {
+  static Future<PhotoList> getPhotoByUser(String username, int page, int perPage) async {
     var response = await http.get(
-        Uri.parse('https://api.unsplash.com/users/$nickname/photos?&page=$page&per_page=$perPage'),
+        Uri.parse('https://api.unsplash.com/users/$username/photos?&page=$page&per_page=$perPage'),
         headers: {'Authorization': 'Bearer $authToken'});
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return PhotoList.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Error: ${response.reasonPhrase}');
+    }
+  }
+
+  static Future<CollectionList> getCollectionsByUser(String username, int page, int perPage) async {
+    var response = await http.get(
+        Uri.parse('https://api.unsplash.com/users/$username/collections?&page=$page&per_page=$perPage'),
+        headers: {'Authorization': 'Bearer $authToken'});
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return CollectionList.fromJson(json.decode(response.body));
     } else {
       throw Exception('Error: ${response.reasonPhrase}');
     }

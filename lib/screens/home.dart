@@ -91,9 +91,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
       body: IndexedStack(
         index: currentTab,
         children: [
-        PhotoListScreen(),
-        PhotoSearch(),
-        Container()
+          PhotoListScreen(),
+          PhotoSearch(),
+          CollectionLists(),
         // MyProfile(),
       ],),
       // body: PageStorage(
