@@ -1,13 +1,11 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:widget_lections/data_provider.dart';
 import 'package:widget_lections/models/photo_list/model.dart';
 import 'package:widget_lections/res/res.dart';
-import 'package:widget_lections/screens/photoScreen.dart';
-import 'package:widget_lections/widgets/photo.dart';
+import 'package:widget_lections/screens/collectionScreen.dart';
+import 'package:widget_lections/widgets/widgets.dart';
 
 class Profile extends StatefulWidget {
   Profile(this._userProfile);
@@ -22,17 +20,22 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
   ScrollController _scrollController = ScrollController();
   ScrollController _horyzontalController = ScrollController();
   Photo? _userProfile;
-  int colPageCount = 0;
-  int pageCount = 0;
+  int colPageCount = 1;
+  int pageCount = 1;
   bool isLoading = false;
   bool isLoadingCol = false;
   List<Photo> userPhotos = [];
-  List<Collection> data = [];
+  List<Collection> collectionsList = [];
 
   @override
   void initState() {
-    _getCollectionsByUser(_userProfile!.user!.username.toString(),colPageCount);
-    _getPhotoByUser(_userProfile!.user!.username.toString(), pageCount);
+    print('$colPageCount $pageCount $isLoading $isLoadingCol');
+    init(_userProfile!.user!.username.toString());
+    print('$colPageCount $pageCount $isLoading $isLoadingCol');
+    print ('Collections length ${collectionsList.length}');
+    print ('Photos length ${userPhotos.length}');
+    // _getCollectionsByUser(_userProfile!.user!.username.toString(),colPageCount);
+    // _getPhotoByUser(_userProfile!.user!.username.toString(), pageCount);
     super.initState();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -50,20 +53,10 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    // _horyzontalController.dispose();
+    _horyzontalController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
-
-  final List<Map> collections = [
-    {"title": "Food joint", "image": 'https://i.pinimg.com/originals/8b/5e/be/8b5ebe12c3a61802dfdaaf4df393dda7.png'},
-    {"title": "Photos", "image": 'https://i.pinimg.com/originals/8b/5e/be/8b5ebe12c3a61802dfdaaf4df393dda7.png'},
-    {"title": "Travel", "image": 'https://i.pinimg.com/originals/8b/5e/be/8b5ebe12c3a61802dfdaaf4df393dda7.png'},
-    {"title": "Nepal", "image": 'https://i.pinimg.com/originals/8b/5e/be/8b5ebe12c3a61802dfdaaf4df393dda7.png'},
-  ];
-
-  final String testImage = 'https://i.pinimg.com/originals/8b/5e/be/8b5ebe12c3a61802dfdaaf4df393dda7.png';
-
 
       ProfileState(Photo userProfile){
     _userProfile = userProfile;
@@ -90,13 +83,19 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
     ),
     child: AppBar(
       backgroundColor: AppColors.white,
-      title: Text(_userProfile!.user!.username!,
-        style: TextStyle(color: AppColors.black, fontWeight: FontWeight.w600),),
+      title: Text('${_userProfile!.user!.instagramUsername ?? _userProfile!.user!.username!}',
+        style: TextStyle(
+            color: AppColors.black,
+            fontWeight: FontWeight.w600,
+            fontStyle: FontStyle.italic,
+        ),
+      ),
       centerTitle: false,
+      automaticallyImplyLeading: false,
       elevation: 0,
       actions: [
-        IconButton(icon: Icon(Icons.add_box_outlined, color: Colors.black,),
-          onPressed: () => print("Add"),),
+        // IconButton(icon: Icon(Icons.add_box_outlined, color: Colors.black,),
+        //   onPressed: () => print("Add"),),
         IconButton(icon: Icon(Icons.menu, color: Colors.black,),
           onPressed: () => _onButtonPressed(),)
       ],
@@ -122,7 +121,7 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
                 SliverList(
                     delegate: SliverChildListDelegate(
                         [
-                          _mainListBuilder(context, data),
+                          _mainListBuilder(context, collectionsList),
                         ]
                     )
                 ),
@@ -175,29 +174,45 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
     ),
   );
 
-  Widget _mainListBuilder(BuildContext context, List<Collection> data) {
+  Widget _mainListBuilder(BuildContext context, List<Collection> collections) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildHeader(context),
-        _buildSectionHeader(context),
-        _buildCollectionsRow(context, data),
+        buildHeader(context, _userProfile!.user!),
+        // _buildHeader(context, _userProfile!.user!),
+        collections.isEmpty ? Container() :_buildSectionHeader(context),
+        // _buildSectionHeader(context),
+        collections.isEmpty ? Container() :_buildCollectionsRow(context, collections),
       ],
     );
   }
 
-  Widget _buildCollectionsRow(context, List<Collection> data) {
+  Widget _buildCollectionsRow(context, List<Collection> collections) {
     return Container(
-      height: 200.0,
+      height: 85.0,
+      width: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      color: AppColors.white,
       child: ListView.builder(
+        shrinkWrap: true,
         controller: _horyzontalController,
         scrollDirection: Axis.horizontal,
-        itemCount: data.length,
+        itemCount: collections.length,
         itemBuilder: (context, int index) {
-          return data.isEmpty
+          return collections.isEmpty
               ? CircularProgressIndicator()
-              : BigPhoto(photoLink: data[index].coverPhoto!.urls!.small!,
-              tag: '123');
-        },
+              : GestureDetector(
+            onTap: (){ setState((){
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CollectionListScreen(collections[index], 'collection_${collections[index].id}')
+                  ));});},
+            child: CollectionWidget(
+                photoLink: collections[index].coverPhoto!.urls!.small!,
+                title: '${collections[index].title ?? ''}'),
+          );
+          },
       ),
     );
   }
@@ -215,8 +230,8 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
             ),
           );
         }
-        return _buildPhoto(userPhotos[index]);
-      },
+        return buildPhoto(userPhotos[index], context, 0);
+        },
       itemCount: userPhotos.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
@@ -239,137 +254,6 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
     );
   }
 
-  Container _buildHeader(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(top: 50.0),
-      height: 240.0,
-      child: Stack(
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.only(
-                top: 40.0, left: 21.0, right: 21.0, bottom: 10.0),
-            child: Material(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0)),
-              elevation: 5.0,
-              color: Colors.white,
-              child: Column(
-                children: <Widget>[
-                  SizedBox(
-                    height: 50.0,
-                  ),
-                  Text(
-                    _userProfile!.user!.name!,
-                    style: AppStyles.h3.copyWith(color: Colors.black),
-                  ),
-                  SizedBox(height: 5.0,),
-                  buildSocials(_userProfile!),
-                  Container(
-                    height: 40.0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Expanded(
-                          child: ListTile(
-                            title: Text(
-                              '${_userProfile!.user!.totalPhotos!}',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Text("Photos".toUpperCase(),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 12.0)),
-                          ),
-                        ),
-                        Expanded(
-                          child: ListTile(
-                            title: Text(
-                              '${_userProfile!.user!.totalLikes!}',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Text("LIKES".toUpperCase(),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 12.0)),
-                          ),
-                        ),
-                        Expanded(
-                          child: ListTile(
-                            title: Text(
-                              '${_userProfile!.user!.totalCollections!}',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Text("Collections".toUpperCase(),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 12.0)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Material(
-                elevation: 5.0,
-                shape: CircleBorder(),
-                child: CircleAvatar(
-                  radius: 40.0,
-                  backgroundImage: CachedNetworkImageProvider(_userProfile!.user!.profileImage!.medium.toString(),),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildSocials(Photo userProfile) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        SizedBox(width: 20.0),
-        IconButton(
-          color: Colors.indigo,
-          icon: Icon(FontAwesomeIcons.instagram,),
-          onPressed: () {
-            _launchURL("https://www.instagram.com/${userProfile.user!.instagramUsername}");
-          },
-        ),
-        SizedBox(width: 5.0),
-        IconButton(
-          color: Colors.indigo,
-          icon: Icon(FontAwesomeIcons.twitter),
-          onPressed: () {
-            _launchURL("https://twitter.com/${userProfile.user!.twitterUsername}");
-          },
-        ),
-        SizedBox(width: 10.0),
-      ],
-    );
-  }
-
-  Widget _buildPhoto(Photo userPhoto) {
-    return GestureDetector(
-      onTap: (){
-        Navigator.pushNamed(
-            context,
-            '/photoPage',
-            arguments: PhotoPageArguments(
-                routeSettings: RouteSettings(
-                    arguments: 'profilePage_${userPhoto.id}'),
-                user: userPhoto)
-        );
-      },
-      child: BigPhoto(photoLink: userPhoto.urls!.regular!, tag: 'profilePageGrid_${userPhoto.id}'),
-    );
-  }
   void _onButtonPressed() {
     {
       showModalBottomSheet(
@@ -389,26 +273,6 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
                     title: Center(child: Text('Clear cache')),
                     onTap: clearCache,
                   ),
-                  ListTile(
-                    title: Center(child: Text('HARM')),
-                    onTap: ()=> (){},
-                  ),
-                  ListTile(
-                    title: Center(child: Text('BULLY')),
-                    onTap: ()=> (){},
-                  ),
-                  ListTile(
-                    title: Center(child: Text('SPAM')),
-                    onTap: ()=> (){},
-                  ),
-                  ListTile(
-                    title: Center(child: Text('COPYRIGHT')),
-                    onTap: ()=> (){},
-                  ),
-                  ListTile(
-                    title: Center(child: Text('HATE')),
-                    onTap: (){},
-                  )
                 ],
               ),
             );
@@ -424,13 +288,6 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
     setState(() {});
   }
 
-  _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
   void _getPhotoByUser(String nickname, int page) async {
     if (!isLoading) {
       setState(() {
@@ -455,8 +312,26 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
 
       setState(() {
         isLoadingCol = false;
-        data.addAll(tempList.collections!);
+        collectionsList.addAll(tempList.collections!);
         colPageCount++;
+      });
+    }
+  }
+
+  void init (String username) async {
+    if (!isLoadingCol) {
+      setState(() {
+        isLoadingCol = true;
+      });
+      var tempList = await DataProvider.getPhotoByUser(username, 0, 10);
+      var tempColList = await DataProvider.getCollectionsByUser(username, 0, 10);
+
+      setState(() {
+        isLoadingCol = false;
+        userPhotos.addAll(tempList.photos!);
+        collectionsList.addAll(tempColList.collections!);
+        colPageCount++;
+        pageCount++;
       });
     }
   }

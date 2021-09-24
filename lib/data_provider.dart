@@ -22,7 +22,7 @@ import 'package:http/http.dart' as http; // для выполнения http з�
 */
 
 class DataProvider {
-  static const String _appId = "261112"; //not used, just for info
+  // static const String _appId = "261112"; //not used, just for info
   static String authToken = "OuD11c1ZZOwodVtG4bX69AkuioYdLnoKKG0AVU6DszA";
   static const String _accessKey =
       'ZO8jyGxChpxOQJr2JC41DHOkNnQLDW3_2OpN-Wsir08'; //app access key from console
@@ -159,6 +159,30 @@ class DataProvider {
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return CollectionList.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Error: ${response.reasonPhrase}');
+    }
+  }
+
+  static Future<PhotoList> getPhotosByCollection(String id, int page, int perPage) async {
+    var response = await http.get(
+        Uri.parse('https://api.unsplash.com/collections/$id/photos?&page=$page&per_page=$perPage'),
+        headers: {'Authorization': 'Bearer $authToken'});
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return PhotoList.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Error: ${response.reasonPhrase}');
+    }
+  }
+
+  static Future<Sponsor> getMyProfile() async {
+    var response = await http.get(
+        Uri.parse('https://api.unsplash.com/me'),
+        headers: {'Authorization': 'Bearer $authToken'});
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return Sponsor.fromJson(json.decode(response.body));
     } else {
       throw Exception('Error: ${response.reasonPhrase}');
     }

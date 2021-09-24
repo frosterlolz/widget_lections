@@ -60,7 +60,7 @@ class Photo {
         this.user});
 
   Photo.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+    id = json['id'] ?? '0';
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     promotedAt = json['promoted_at'];
@@ -399,7 +399,7 @@ class Collection{
   String? title;
   String? description;
   DateTime? publishedAt;
-  DateTime? lastCollectedAt;
+  // DateTime? lastCollectedAt;
   DateTime? updatedAt;
   bool? curated;
   bool? featured;
@@ -417,7 +417,7 @@ class Collection{
     this.title,
     this.description,
     this.publishedAt,
-    this.lastCollectedAt,
+    // this.lastCollectedAt,
     this.updatedAt,
     this.curated,
     this.featured,
@@ -436,7 +436,7 @@ class Collection{
     title = json["title"];
     description = json["description"];
     publishedAt = DateTime.parse(json["published_at"]);
-    lastCollectedAt = DateTime.parse(json["last_collected_at"]);
+    // lastCollectedAt = DateTime.parse(json["last_collected_at"]);
     updatedAt = DateTime.parse(json["updated_at"]);
     curated = json["curated"];
     featured = json["featured"];
@@ -458,7 +458,7 @@ class Collection{
     data["title"] = this.title;
     data['description'] = this.description;
     data["published_at"] = this.publishedAt;
-    data["last_collected_at"] = this.lastCollectedAt;
+    // data["last_collected_at"] = this.lastCollectedAt;
     data["updated_at"] = this.updatedAt;
     data["curated"] = this.curated;
     data["featured"] = this.featured;

@@ -2,8 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:share/share.dart';
 import 'package:widget_lections/models/photo_list/model.dart';
 import 'package:widget_lections/res/res.dart';
+import 'package:widget_lections/utils/like_function.dart';
 import 'package:widget_lections/widgets/photo.dart';
 import 'package:widget_lections/widgets/widgets.dart';
 
@@ -44,7 +46,7 @@ class _PhotoPageState extends State<PhotoPage> {
             onPressed: (){Navigator.pop(context);},),
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: Text('Photo',
+          title: Text(widget.user.id.toString(),
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.black)),
@@ -67,7 +69,11 @@ class _PhotoPageState extends State<PhotoPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         // PHOTO
-            BigPhoto(photoLink: widget.user.urls!.regular!, tag: tag!,),
+            InkWell(
+              onDoubleTap: (){setState(() {
+                onlyLike(widget.user.id!, widget.user.likedByUser!, widget.user.likes!);
+              });},
+                child: BigPhoto(photoLink: widget.user.urls!.regular!, tag: tag!, radius: 17,)),
         // ABOUT
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -92,7 +98,7 @@ class _PhotoPageState extends State<PhotoPage> {
           Padding(padding: EdgeInsets.symmetric(horizontal: 20),
             child: LikeButton(widget.user.likedByUser!, widget.user.likes!, widget.user.id!),),
           Padding(padding: EdgeInsets.symmetric(horizontal: 20),
-            child: IconButton(icon: Icon(Icons.ios_share), onPressed: (){},),),
+            child: IconButton(icon: Icon(Icons.share), onPressed: (){Share.share(widget.user.urls!.full!);},),),
           Expanded(child: _buildButton(
             'Save',
                 (){

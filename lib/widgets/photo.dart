@@ -4,24 +4,26 @@ import 'package:widget_lections/res/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class BigPhoto extends StatelessWidget {
-  const BigPhoto({Key? key, required this.photoLink, required this.tag}) : super(key: key);
+  const BigPhoto({Key? key, required this.photoLink, required this.tag, required this.radius,}) : super(key: key);
 
   final String photoLink;
   final String tag;
+  final int radius;
   @override
   Widget build(BuildContext context) {
     return Hero(
       tag: tag,
       child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 3, vertical: 5),
+          padding: EdgeInsets.symmetric(horizontal: 3, vertical: 3),
         child: ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(17)),
+          // 17
+          borderRadius: BorderRadius.all(Radius.circular(radius.toDouble())),
           child: Container(
             color: AppColors.grayChateau,
             child: CachedNetworkImage(
               key: UniqueKey(),
               imageUrl: photoLink,
-              fit: BoxFit.fill,
+              fit: BoxFit.cover,
               placeholder: (context, url) => Center(child: CircularProgressIndicator()),
               errorWidget: (context, url, error) => Icon(Icons.error),
             ),

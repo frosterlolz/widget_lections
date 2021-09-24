@@ -130,7 +130,8 @@ class _PhotoSearchState extends State<PhotoSearch> {
         },
         child: BigPhoto(
               photoLink: data.urls!.regular!,
-              tag: 'searchItem_${data.id}'),
+              tag: 'searchItem_${data.id}',
+        radius: 17,),
     );
   }
 

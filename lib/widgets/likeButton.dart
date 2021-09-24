@@ -30,10 +30,7 @@ class _LikeButtonState extends State<LikeButton> {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () async {
-        // isLiked
-        //     ? DataProvider.unlikePhoto(id)
-        //     : DataProvider.likePhoto(id);
+      onTap: () {
         DataProvider.isLikePhoto(id, isLiked);
         setState(() {
           isLiked ? likeCount-- : likeCount++;
