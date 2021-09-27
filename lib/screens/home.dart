@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:widget_lections/data_provider.dart';
+import 'package:widget_lections/models/photo_list/model.dart';
 import 'package:widget_lections/res/res.dart';
-import 'package:widget_lections/screens/feedScreen.dart';
-import 'package:widget_lections/screens/photo_search.dart';
-import 'package:widget_lections/screens/user_profile.dart';
+import 'package:widget_lections/screens/photos_feed/feedScreen.dart';
+import 'package:widget_lections/screens/search/photo_search.dart';
+import 'package:widget_lections/screens/user/my_profile.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -14,10 +16,15 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> with TickerProviderStateMixin{
+  Sponsor? user;
   StreamSubscription? subscription;
+  bool isLoading = false;
+  List<Photo> photoList = [];
 
   @override
   void initState() {
+    _getMyProfile();
+    print(user);
     super.initState();
     subscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
       switch (result) {
@@ -40,14 +47,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
   }
 
   int currentTab = 0;
-
-  // final PageStorageBucket bucket = PageStorageBucket();
-
-  // List<Widget> pages = [
-  //   PhotoListScreen(),
-  //   PhotoSearch(),
-  //   MyProfile(),
-  // ];
 
   final List<BottomNavBarItem> _tabs = [
     BottomNavBarItem(
@@ -76,6 +75,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      body: IndexedStack(
+        index: currentTab,
+        children: [
+          isLoading != true ? PhotoListScreen(photoList) : CircularProgressIndicator(),
+          isLoading != true ? PhotoSearch(photoList) : CircularProgressIndicator(),
+          isLoading != true ? MyProfilePage(user: user!) : CircularProgressIndicator(),
+        ],
+      ),
       bottomNavigationBar: BottomNavBar(
         showElevation: true,
         itemCornerRadius: 8,
@@ -86,20 +93,22 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
         items: _tabs,
         currentTab: currentTab,
       ),
-      body: IndexedStack(
-        index: currentTab,
-        children: [
-          PhotoListScreen(),
-          PhotoSearch(),
-          Container(),
-          // MyProfile(),
-      ],),
-      // body: PageStorage(
-      //   child: pages[currentTab],
-      //   bucket: bucket,
-      // ),
-          //
     );
+  }
+  void _getMyProfile() async {
+    if (!isLoading) {
+      setState(() {
+        isLoading = true;
+      });
+      var tempUser = await DataProvider.getMyProfile();
+      var tempPhotoList = await DataProvider.getPhotos(1, 10);
+
+      setState(() {
+        isLoading = false;
+        user = tempUser;
+        photoList.addAll(tempPhotoList.photos!);
+      });
+    }
   }
 }
 

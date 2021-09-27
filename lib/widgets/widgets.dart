@@ -10,3 +10,4 @@ export 'view_builders/info_widget.dart';
 export 'view_builders/about_widget.dart';
 export 'collection_widget.dart';
 export 'profile/header_widget.dart';
+export 'detailed_block.dart';

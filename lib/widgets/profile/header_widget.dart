@@ -5,7 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:widget_lections/models/photo_list/model.dart';
 import 'package:widget_lections/res/res.dart';
 
-Container buildHeader(BuildContext context, Sponsor user) {
+Container buildHeader(BuildContext context, Sponsor? user) {
   return Container(
     margin: EdgeInsets.only(top: 50.0),
     height: 240.0,
@@ -25,7 +25,7 @@ Container buildHeader(BuildContext context, Sponsor user) {
                   height: 50.0,
                 ),
                 Text(
-                  user.name!,
+                  user?.name ?? 'Name null',
                   style: AppStyles.h3.copyWith(color: Colors.black),
                 ),
                 SizedBox(height: 5.0,),
@@ -38,7 +38,7 @@ Container buildHeader(BuildContext context, Sponsor user) {
                       Expanded(
                         child: ListTile(
                           title: Text(
-                            '${user.totalPhotos!}',
+                            '${user?.totalPhotos ?? '0'}',
                             textAlign: TextAlign.center,
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
@@ -50,7 +50,7 @@ Container buildHeader(BuildContext context, Sponsor user) {
                       Expanded(
                         child: ListTile(
                           title: Text(
-                            '${user.totalLikes!}',
+                            '${user?.totalLikes ?? '0'}',
                             textAlign: TextAlign.center,
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
@@ -62,7 +62,7 @@ Container buildHeader(BuildContext context, Sponsor user) {
                       Expanded(
                         child: ListTile(
                           title: Text(
-                            '${user.totalCollections!}',
+                            '${user?.totalCollections ?? '0'}',
                             textAlign: TextAlign.center,
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
@@ -86,7 +86,9 @@ Container buildHeader(BuildContext context, Sponsor user) {
               shape: CircleBorder(),
               child: CircleAvatar(
                 radius: 40.0,
-                backgroundImage: CachedNetworkImageProvider(user.profileImage!.medium.toString(),),
+                backgroundImage: CachedNetworkImageProvider('${user?.profileImage?.medium
+                    ?? 'https://i.pinimg.com/originals/d8/42/e2/d842e2a8aecaffff34ae744a96896ac9.jpg'}'
+                  ,),
               ),
             ),
           ],
@@ -96,7 +98,7 @@ Container buildHeader(BuildContext context, Sponsor user) {
   );
 }
 
-Widget buildSocials(Sponsor user) {
+Widget buildSocials(Sponsor? user) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: <Widget>[
@@ -105,7 +107,7 @@ Widget buildSocials(Sponsor user) {
         color: Colors.indigo,
         icon: Icon(FontAwesomeIcons.instagram,),
         onPressed: () {
-          _launchURL("https://www.instagram.com/${user.instagramUsername}");
+          _launchURL("https://www.instagram.com/${user!.instagramUsername ?? 'frosterlolz'}");
         },
       ),
       SizedBox(width: 5.0),
@@ -113,7 +115,7 @@ Widget buildSocials(Sponsor user) {
         color: Colors.indigo,
         icon: Icon(FontAwesomeIcons.twitter),
         onPressed: () {
-          _launchURL("https://twitter.com/${user.twitterUsername}");
+          _launchURL("https://twitter.com/${user!.twitterUsername ?? 'frosterlolz'}");
         },
       ),
       SizedBox(width: 10.0),

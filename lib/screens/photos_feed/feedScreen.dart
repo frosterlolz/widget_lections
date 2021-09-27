@@ -10,6 +10,9 @@ import 'package:widget_lections/utils/overlays.dart';
 import 'package:widget_lections/widgets/widgets.dart';
 
 class PhotoListScreen extends StatefulWidget {
+  PhotoListScreen(this.defaultList);
+  List<Photo> defaultList;
+
   @override
   _PhotoListState createState() => _PhotoListState();
 }
@@ -17,17 +20,18 @@ class PhotoListScreen extends StatefulWidget {
 class _PhotoListState extends State<PhotoListScreen> {
   late StreamSubscription subscription;
   ScrollController _scrollController = ScrollController();
-  int pageCount = 0;
+  int pageCount = 2;
   bool isLoading = false;
   List<Photo> photoList = [];
   bool _isAdded = true;
 
   @override
   void initState() {
+    this.photoList.addAll(widget.defaultList);
 
     subscription = Connectivity().onConnectivityChanged.listen(showConnectivitySnackBar);
 
-    this._getData(pageCount);
+    // this._getData(pageCount);
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent * 0.8) {
@@ -89,7 +93,8 @@ class _PhotoListState extends State<PhotoListScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             buildPhoto(photo, context, 17),
-            BuildInfo(data: photo, isAdded: isAdded),
+            DetailedBlock(photo, likeButton: true,),
+            // BuildInfo(data: photo, isAdded: isAdded),
             buildAbout(photo),
           ]
       ),

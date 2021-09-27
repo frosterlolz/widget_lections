@@ -23,7 +23,8 @@ class _ListBuilderState extends State<ListBuilder> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             buildPhoto(widget.photo, context, 17),
-            BuildInfo(data: widget.photo, isAdded: widget.isAdded),
+            DetailedBlock(widget.photo, likeButton: true,),
+            // BuildInfo(data: widget.photo, isAdded: widget.isAdded),
             buildAbout(widget.photo),
           ]
       ),

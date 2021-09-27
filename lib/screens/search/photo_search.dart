@@ -10,6 +10,10 @@ import 'package:widget_lections/widgets/searchWidget.dart';
 import 'package:widget_lections/widgets/widgets.dart';
 
 class PhotoSearch extends StatefulWidget {
+  List<Photo> defaultList;
+
+  PhotoSearch(this.defaultList);
+
   @override
   _PhotoSearchState createState() => _PhotoSearchState();
 }
@@ -18,7 +22,7 @@ class _PhotoSearchState extends State<PhotoSearch> {
   final TextStyle dropdownMenuItem =
   TextStyle(color: Colors.black, fontSize: 18);
   ScrollController _scrollController = ScrollController();
-  int pageCount = 0;
+  int pageCount = 1;
   bool isLoading = false;
   List<Photo> data = [];
   String query = '';
@@ -28,18 +32,17 @@ class _PhotoSearchState extends State<PhotoSearch> {
   void initState() {
     super.initState();
 
-    this._getData(pageCount);
-    print('load data');
+    this.data = widget.defaultList;
+    // this._getData(pageCount);
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent * 0.8) {
-        query == '' ? _getData(pageCount): _getSearchData(query, pageCount);
+        query == '' ? _getData(pageCount) : _getSearchData(query, pageCount);
       }
     });
-    print('set listener');
-
-    setState(() {});
-    // _getSearchData(query, pageCount);
+    //
+    // setState(() {});
+    // // _getSearchData(query, pageCount);
   }
 
   @override
@@ -202,7 +205,6 @@ class _PhotoSearchState extends State<PhotoSearch> {
   }
 
   void _getSearchData(String query, int page) async {
-    print('getSearchData $query');
     if (!isLoading) {
       setState(() {
         isLoading = true;
@@ -224,13 +226,11 @@ class _PhotoSearchState extends State<PhotoSearch> {
   );
 
   Future searchPhoto(String query) async => debounce(() async {
-    print ('search new, query = $query');
 
     final data =
     (query == ''
-        ? await DataProvider.getPhotos(pageCount, 10)
+        ? await DataProvider.getPhotos(pageCount == 1 ? pageCount +1 : pageCount, 10)
         : await DataProvider.getSearchPhoto(query, pageCount, 10));
-    // _getSearchData(query, pageCount);
 
     if (!mounted) return;
 

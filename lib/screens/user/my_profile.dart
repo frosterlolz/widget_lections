@@ -1,52 +1,61 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:widget_lections/data_provider.dart';
 import 'package:widget_lections/models/photo_list/model.dart';
+import 'package:widget_lections/res/colors.dart';
 import 'package:widget_lections/res/res.dart';
 import 'package:widget_lections/screens/collectionScreen.dart';
 import 'package:widget_lections/widgets/widgets.dart';
 
-class Profile extends StatefulWidget {
-  Profile(this._userProfile);
+class MyProfilePage extends StatefulWidget {
+  MyProfilePage({
+    Key? key,
+    required this.user
+  }) : super(key: key);
 
-  final Photo _userProfile;
+  final Sponsor user;
 
   @override
-  State<StatefulWidget> createState() => ProfileState(_userProfile);
+  _MyProfilePageState createState() => _MyProfilePageState(user);
 }
 
-class ProfileState extends State<Profile> with TickerProviderStateMixin {
+class _MyProfilePageState extends State<MyProfilePage> {
   ScrollController _scrollController = ScrollController();
   ScrollController _horyzontalController = ScrollController();
-  Photo? _userProfile;
-  int colPageCount = 1;
+  Sponsor? user;
   int pageCount = 1;
+  int colPageCount = 1;
+  int likedPhotoCount = 1;
   bool isLoading = false;
   bool isLoadingCol = false;
   List<Photo> userPhotos = [];
+  List<Photo> likedPhotos = [];
   List<Collection> collectionsList = [];
+  int currentTab = 0;
 
   @override
   void initState() {
-    print('$colPageCount $pageCount $isLoading $isLoadingCol');
-    init(_userProfile!.user!.username.toString());
-    print('$colPageCount $pageCount $isLoading $isLoadingCol');
-    print ('Collections length ${collectionsList.length}');
-    print ('Photos length ${userPhotos.length}');
-    // _getCollectionsByUser(_userProfile!.user!.username.toString(),colPageCount);
-    // _getPhotoByUser(_userProfile!.user!.username.toString(), pageCount);
+    init(user!.username);
+    print([user!.username, userPhotos, likedPhotos]);
+
     super.initState();
+
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent * 0.8) {
-        _getPhotoByUser(_userProfile!.user!.username.toString(), pageCount);
+        switch(currentTab) {
+          case 0: _getPhotoByUser(pageCount);
+          break;
+          case 1: _getLikedPhotoByUser(pageCount);
+          break;
+        }
       }
     });
     _horyzontalController.addListener(() {
       if (_horyzontalController.position.pixels >=
           _horyzontalController.position.maxScrollExtent * 0.8) {
-        _getCollectionsByUser(_userProfile!.user!.username.toString(), colPageCount);
+        _getCollectionsByUser(colPageCount);
       }
     });
   }
@@ -58,18 +67,39 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
     super.dispose();
   }
 
-      ProfileState(Photo userProfile){
-    _userProfile = userProfile;
+  final List<Tab> _tabs = [
+    Tab(
+      icon: Icon(
+        Icons.grid_on_sharp,
+        color: Colors.black,
+      ),
+    ),
+    Tab(
+      icon: Icon(
+        FontAwesomeIcons.heart,
+        color: Colors.black,
+      ),
+    ),
+    // Tab(
+    //   icon: Icon(
+    //     Icons.error_outline,
+    //     color: Colors.black,
+    //   ),
+    // ),
+  ];
+
+  _MyProfilePageState(Sponsor userProfile){
+    user = userProfile;
   }
 
   @override
   Widget build(BuildContext context) => Builder(
     builder: (context) => Scaffold(
-      appBar: PreferredSize(
-          preferredSize: Size.fromHeight(40),
-          child: _buildAppBar()
-      ),
-      body: _buildTabController()
+        appBar: PreferredSize(
+            preferredSize: Size.fromHeight(40),
+            child: _buildAppBar()
+        ),
+        body: _buildTabController()
     ),
   );
 
@@ -83,19 +113,17 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
     ),
     child: AppBar(
       backgroundColor: AppColors.white,
-      title: Text(_userProfile!.user!.username ?? 'NoName Profile',
+      title: Text(user?.username ?? 'username Null',
         style: TextStyle(
-            color: AppColors.black,
-            fontWeight: FontWeight.w600,
-            fontStyle: FontStyle.italic,
+          color: AppColors.black,
+          fontWeight: FontWeight.w600,
+          fontStyle: FontStyle.italic,
         ),
       ),
       centerTitle: false,
       automaticallyImplyLeading: false,
       elevation: 0,
       actions: [
-        // IconButton(icon: Icon(Icons.add_box_outlined, color: Colors.black,),
-        //   onPressed: () => print("Add"),),
         IconButton(icon: Icon(Icons.menu, color: Colors.black,),
           onPressed: () => _onButtonPressed(),)
       ],
@@ -103,7 +131,7 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
   );
 
   Widget _buildTabController() => DefaultTabController(
-    length: 3,
+    length: 2,
     child: Stack(
       children: [
         Container(
@@ -132,38 +160,22 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
                 Material(
                   color: Colors.white,
                   child: TabBar(
+                    onTap: (index) async {
+                      setState(() {currentTab = index;});
+                    },
                     labelColor: Colors.black,
                     unselectedLabelColor: Colors.grey[400],
                     indicatorWeight: 1,
                     indicatorColor: Colors.black,
-                    tabs: [
-                      Tab(
-                        icon: Icon(
-                          Icons.grid_on_sharp,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Tab(
-                        icon: Icon(
-                          Icons.error_outline,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Tab(
-                        icon: Icon(
-                          Icons.error_outline,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
+                    tabs: _tabs,
                   ),
                 ),
                 Expanded(
                   child: TabBarView(
                     children: [
-                      _gallery(),
-                      Container(),
-                      Container(),
+                      userPhotos.isEmpty ? Container(color: Colors.white,child: Center(child: Text('U have no photos('),)) : _gallery(userPhotos),
+                      likedPhotos.isEmpty ? Container(color: Colors.white,child: Center(child: Text('U didnt like our photos('),)) : _gallery(likedPhotos),
+                      // Container(),
                     ],
                   ),
                 ),
@@ -178,10 +190,8 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildHeader(context, _userProfile!.user!),
-        // _buildHeader(context, _userProfile!.user!),
+        buildHeader(context, user),
         collections.isEmpty ? Container() :_buildSectionHeader(context),
-        // _buildSectionHeader(context),
         collections.isEmpty ? Container() :_buildCollectionsRow(context, collections),
       ],
     );
@@ -209,20 +219,21 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
                       builder: (context) => CollectionListScreen(collections[index], 'collection_${collections[index].id}')
                   ));});},
             child: CollectionWidget(
-                photoLink: collections[index].coverPhoto!.urls!.small!,
+                photoLink: collections[index].coverPhoto!.urls!.small ?? 'https://i.pinimg.com/originals/d8/42/e2/d842e2a8aecaffff34ae744a96896ac9.jpg',
                 title: '${collections[index].title ?? ''}'),
           );
-          },
+        },
       ),
     );
   }
 
-  Widget _gallery() => Scaffold(
+  Widget _gallery(List<Photo> photoList) => Scaffold(
     body: GridView.builder(
+      itemCount: user!.totalLikes,
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
       itemBuilder: (context, index) {
-        if (index == userPhotos.length) {
+        if (index == photoList.length) {
           return Center(
             child: Opacity(
               opacity: isLoading ? 1 : 0,
@@ -230,11 +241,10 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
             ),
           );
         }
-        return buildPhoto(userPhotos[index], context, 0);
-        },
-      itemCount: userPhotos.length,
+        return buildPhoto(photoList[index], context, 0);
+      },
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
+        crossAxisCount: 2,
       ),
     ),
   );
@@ -288,12 +298,12 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
     setState(() {});
   }
 
-  void _getPhotoByUser(String nickname, int page) async {
+  void _getPhotoByUser(int page) async {
     if (!isLoading) {
       setState(() {
         isLoading = true;
       });
-      var tempList = await DataProvider.getPhotoByUser(nickname, page, 10);
+      var tempList = await DataProvider.getPhotoByUser(user!.username!, page, 10);
 
       setState(() {
         isLoading = false;
@@ -303,12 +313,12 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
     }
   }
 
-  void _getCollectionsByUser(String username, int page) async {
+  void _getCollectionsByUser(int page) async {
     if (!isLoadingCol) {
       setState(() {
         isLoadingCol = true;
       });
-      var tempList = await DataProvider.getCollectionsByUser(username, page, 10);
+      var tempList = await DataProvider.getCollectionsByUser(user!.username!, page, 10);
 
       setState(() {
         isLoadingCol = false;
@@ -318,22 +328,44 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
     }
   }
 
-  void init (String username) async {
-    if (!isLoadingCol) {
+  void _getLikedPhotoByUser(int page) async {
+    if (!isLoading) {
       setState(() {
-        isLoadingCol = true;
+        isLoading = true;
       });
-      var tempList = await DataProvider.getPhotoByUser(username, 0, 10);
-      var tempColList = await DataProvider.getCollectionsByUser(username, 0, 10);
+      var tempList = await DataProvider.getLikedPhotoByUser(user!.username!, page, 10);
 
       setState(() {
-        isLoadingCol = false;
-        userPhotos.addAll(tempList.photos!);
-        collectionsList.addAll(tempColList.collections!);
-        colPageCount++;
-        pageCount++;
+        isLoading = false;
+        likedPhotos.addAll(tempList.photos!);
+        likedPhotoCount++;
       });
     }
   }
 
+  void init(username) async {
+    setState(() {
+      isLoading = true;
+      isLoadingCol = true;
+    });
+
+    PhotoList tempPhotosList = await DataProvider.getPhotoByUser(
+        user!.username!, 1, 10);
+    CollectionList tempCollectionsList = await DataProvider.getCollectionsByUser(
+        user!.username!, 1, 10);
+    PhotoList tempLikedPhotos = await DataProvider.getLikedPhotoByUser(
+        user!.username!, 1, 10);
+
+    setState(() {
+      isLoading = false;
+      isLoadingCol = false;
+      userPhotos.addAll(tempPhotosList.photos!);
+      collectionsList.addAll(tempCollectionsList.collections!);
+      likedPhotos.addAll(tempLikedPhotos.photos!);
+      colPageCount++;
+      pageCount++;
+      likedPhotoCount++;
+      print ([user, userPhotos, likedPhotos]);
+    });
+  }
 }

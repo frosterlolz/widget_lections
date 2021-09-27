@@ -5,6 +5,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:share/share.dart';
 import 'package:widget_lections/models/photo_list/model.dart';
 import 'package:widget_lections/res/res.dart';
+import 'package:widget_lections/screens/profile_page.dart';
 import 'package:widget_lections/utils/like_function.dart';
 import 'package:widget_lections/widgets/photo.dart';
 import 'package:widget_lections/widgets/widgets.dart';
@@ -68,21 +69,28 @@ class _PhotoPageState extends State<PhotoPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        // PHOTO
-            InkWell(
-              onDoubleTap: (){setState(() {
-                onlyLike(widget.user.id!, widget.user.likedByUser!, widget.user.likes!);
-              });},
-                child: BigPhoto(photoLink: widget.user.urls!.regular!, tag: tag!, radius: 17,)),
-        // ABOUT
+        InkWell(
+            onDoubleTap: (){setState(() {
+              onlyLike(widget.user.id!, widget.user.likedByUser!, widget.user.likes!);
+            });},
+            child: BigPhoto(photoLink: widget.user.urls!.regular!, tag: tag!, radius: 17,)),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           child: Text('${widget.user.description ?? 'sample description'}', maxLines: 3,
             overflow: TextOverflow.ellipsis,
             style: AppStyles.h3.copyWith(color: AppColors.grayChateau),),),
         // Profile Widget
-        _buildPhotoMeta(widget.user),
-        // лайки, кнопки: save, visit
+        DetailedBlock(widget.user),
+        // GestureDetector(
+        //     onTap: (){
+        //       setState(() {
+        //         Navigator.push(
+        //             context,
+        //             MaterialPageRoute(builder: (context)=>Profile(widget.user))
+        //         );
+        //       });
+        //     },
+        //     child: _buildPhotoMeta(widget.user)),
         _detailedBlock(),
         Padding(padding: EdgeInsets.only(top: 20)),
       ],

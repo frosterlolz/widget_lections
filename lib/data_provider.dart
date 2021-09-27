@@ -187,4 +187,16 @@ class DataProvider {
       throw Exception('Error: ${response.reasonPhrase}');
     }
   }
+
+  static Future<PhotoList> getLikedPhotoByUser(String username, int page, int perPage) async {
+    var response = await http.get(
+        Uri.parse('https://api.unsplash.com/users/$username/likes?&page=$page&per_page=$perPage'),
+        headers: {'Authorization': 'Bearer $authToken'});
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return PhotoList.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Error: ${response.reasonPhrase}');
+    }
+  }
 }

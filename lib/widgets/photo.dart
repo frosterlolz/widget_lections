@@ -19,7 +19,7 @@ class BigPhoto extends StatelessWidget {
           // 17
           borderRadius: BorderRadius.all(Radius.circular(radius.toDouble())),
           child: Container(
-            color: AppColors.grayChateau,
+            color: AppColors.white,
             child: CachedNetworkImage(
               key: UniqueKey(),
               imageUrl: photoLink,

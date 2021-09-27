@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:widget_lections/screens/feedScreen.dart';
+import 'package:widget_lections/screens/photos_feed/feedScreen.dart';
 import 'package:widget_lections/screens/first_screen.dart';
 import 'package:widget_lections/screens/for_test.dart';
 import 'package:widget_lections/screens/photoScreen.dart';
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
         },
         routes: {
           '/': (context) => MyHomePage(),
-          '/feed': (context) => PhotoListScreen(),
+          // '/feed': (context) => PhotoListScreen(f),
           '/test': (context) => Test(),
         },
 
