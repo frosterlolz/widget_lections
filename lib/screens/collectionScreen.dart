@@ -5,13 +5,12 @@ import 'package:widget_lections/screens/photoScreen.dart';
 import 'package:widget_lections/widgets/widgets.dart';
 
 class CollectionListScreen extends StatefulWidget {
-  CollectionListScreen(this._collection, this._tag);
+  CollectionListScreen(this._collection);
 
   final Collection _collection;
-  final String _tag;
 
   @override
-  State<StatefulWidget> createState() => CollectionListScreenState(_collection, _tag);
+  State<StatefulWidget> createState() => CollectionListScreenState(_collection);
 }
 
 class CollectionListScreenState extends State<CollectionListScreen> with TickerProviderStateMixin {
@@ -20,11 +19,9 @@ class CollectionListScreenState extends State<CollectionListScreen> with TickerP
   int pageCount = 0;
   bool isLoading = false;
   var photoList = <Photo>[];
-  String? _tag;
 
-  CollectionListScreenState(Collection collection, String tag){
+  CollectionListScreenState(Collection collection){
     _collection = collection;
-    _tag = tag;
   }
 
   @override
@@ -50,15 +47,12 @@ class CollectionListScreenState extends State<CollectionListScreen> with TickerP
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Hero(
-          tag: _tag.toString(),
-          child: Text('${_collection!.title ?? 'Noname colletion'}',
+        title: Text('${_collection!.title ?? 'Noname colletion'}',
             style: TextStyle(
                 fontStyle: FontStyle.italic,
                 fontSize: 17
             ),
           ),
-        ),
         centerTitle: true,
         actions: [
           IconButton(
@@ -101,11 +95,11 @@ class CollectionListScreenState extends State<CollectionListScreen> with TickerP
             '/photoPage',
             arguments: PhotoPageArguments(
                 routeSettings: RouteSettings(
-                    arguments: 'feedItem_${photo.id}'),
+                    arguments: 'colItem_${photo.id}'),
                 user: photo)
         );
       },
-      child: BigPhoto(photoLink: photo.urls!.regular!, tag: 'feedItem_${photo.id}', radius: 0,),
+      child: BigPhoto(photoLink: photo.urls!.regular!, tag: 'colItem_${photo.id}', radius: 0,),
     );
   }
 

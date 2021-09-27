@@ -24,9 +24,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
   ScrollController _scrollController = ScrollController();
   ScrollController _horyzontalController = ScrollController();
   Sponsor? user;
-  int pageCount = 1;
-  int colPageCount = 1;
-  int likedPhotoCount = 1;
+  int pageCount = 2;
+  int pageLikedCount = 2;
+  int pageCollectionsCount = 2;
   bool isLoading = false;
   bool isLoadingCol = false;
   List<Photo> userPhotos = [];
@@ -47,7 +47,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
         switch(currentTab) {
           case 0: _getPhotoByUser(pageCount);
           break;
-          case 1: _getLikedPhotoByUser(pageCount);
+          case 1: _getLikedPhotoByUser(pageLikedCount);
           break;
         }
       }
@@ -55,7 +55,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     _horyzontalController.addListener(() {
       if (_horyzontalController.position.pixels >=
           _horyzontalController.position.maxScrollExtent * 0.8) {
-        _getCollectionsByUser(colPageCount);
+        _getCollectionsByUser(pageCollectionsCount);
       }
     });
   }
@@ -80,12 +80,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
         color: Colors.black,
       ),
     ),
-    // Tab(
-    //   icon: Icon(
-    //     Icons.error_outline,
-    //     color: Colors.black,
-    //   ),
-    // ),
   ];
 
   _MyProfilePageState(Sponsor userProfile){
@@ -173,8 +167,12 @@ class _MyProfilePageState extends State<MyProfilePage> {
                 Expanded(
                   child: TabBarView(
                     children: [
-                      userPhotos.isEmpty ? Container(color: Colors.white,child: Center(child: Text('U have no photos('),)) : _gallery(userPhotos),
-                      likedPhotos.isEmpty ? Container(color: Colors.white,child: Center(child: Text('U didnt like our photos('),)) : _gallery(likedPhotos),
+                      userPhotos.isEmpty
+                          ? Container(color: Colors.white,child: Center(child: Text('U have no photos('),))
+                          : _gallery(userPhotos),
+                      likedPhotos.isEmpty
+                          ? Container(color: Colors.white,child: Center(child: Text('U didnt like our photos('),))
+                          : _gallery(likedPhotos),
                       // Container(),
                     ],
                   ),
@@ -216,20 +214,21 @@ class _MyProfilePageState extends State<MyProfilePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => CollectionListScreen(collections[index], 'collection_${collections[index].id}')
+                      builder: (context) => CollectionListScreen(collections[index])
                   ));});},
             child: CollectionWidget(
                 photoLink: collections[index].coverPhoto!.urls!.small ?? 'https://i.pinimg.com/originals/d8/42/e2/d842e2a8aecaffff34ae744a96896ac9.jpg',
                 title: '${collections[index].title ?? ''}'),
           );
-        },
+          },
       ),
     );
   }
 
   Widget _gallery(List<Photo> photoList) => Scaffold(
     body: GridView.builder(
-      itemCount: user!.totalLikes,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+      itemCount: photoList.length,
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
       itemBuilder: (context, index) {
@@ -241,11 +240,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
             ),
           );
         }
-        return buildPhoto(photoList[index], context, 0);
+        return buildPhoto(photoList[index], context, 0, photoList[index].id.toString());
       },
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-      ),
     ),
   );
 
@@ -323,7 +319,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
       setState(() {
         isLoadingCol = false;
         collectionsList.addAll(tempList.collections!);
-        colPageCount++;
+        pageCollectionsCount++;
       });
     }
   }
@@ -338,7 +334,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
       setState(() {
         isLoading = false;
         likedPhotos.addAll(tempList.photos!);
-        likedPhotoCount++;
+        pageLikedCount++;
       });
     }
   }
@@ -362,9 +358,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
       userPhotos.addAll(tempPhotosList.photos!);
       collectionsList.addAll(tempCollectionsList.collections!);
       likedPhotos.addAll(tempLikedPhotos.photos!);
-      colPageCount++;
-      pageCount++;
-      likedPhotoCount++;
       print ([user, userPhotos, likedPhotos]);
     });
   }

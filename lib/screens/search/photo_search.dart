@@ -2,15 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:widget_lections/data_provider.dart';
 import 'package:widget_lections/models/photo_list/model.dart';
-import 'package:widget_lections/res/res.dart';
-import 'package:widget_lections/screens/photoScreen.dart';
-import 'package:widget_lections/screens/profile_page.dart';
-import 'package:widget_lections/widgets/photo.dart';
-import 'package:widget_lections/widgets/searchWidget.dart';
 import 'package:widget_lections/widgets/widgets.dart';
 
 class PhotoSearch extends StatefulWidget {
-  List<Photo> defaultList;
+  final List<Photo> defaultList;
 
   PhotoSearch(this.defaultList);
 
@@ -30,19 +25,14 @@ class _PhotoSearchState extends State<PhotoSearch> {
 
   @override
   void initState() {
-    super.initState();
-
     this.data = widget.defaultList;
-    // this._getData(pageCount);
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent * 0.8) {
         query == '' ? _getData(pageCount) : _getSearchData(query, pageCount);
       }
     });
-    //
-    // setState(() {});
-    // // _getSearchData(query, pageCount);
+    super.initState();
   }
 
   @override
@@ -70,7 +60,6 @@ class _PhotoSearchState extends State<PhotoSearch> {
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
-        // leading: null,
         title: buildSearch(), centerTitle: true,),
       body: _buildListView(context, data),
     );
@@ -82,6 +71,7 @@ class _PhotoSearchState extends State<PhotoSearch> {
       children: <Widget>[
         Expanded(
         child: ListView.builder(
+          itemCount: data.length,
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           controller: _scrollController,
           itemBuilder: (context, index) {
@@ -100,7 +90,6 @@ class _PhotoSearchState extends State<PhotoSearch> {
               ],
             );
           },
-          itemCount: data.length,
         ),
       ),]
     );
@@ -111,80 +100,10 @@ class _PhotoSearchState extends State<PhotoSearch> {
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            _buildPhoto(post),
-            _buildInfo(post),
-            _buildAbout(post),
+            buildPhoto(post, context, 17, post.id.toString()),
+            DetailedBlock(post, likeButton: true,),
+            buildAbout(post),
           ]
-      ),
-    );
-  }
-
-  Widget _buildPhoto(Photo data) {
-    return GestureDetector(
-        onTap: (){
-          Navigator.pushNamed(
-              context,
-              '/photoPage',
-              arguments: PhotoPageArguments(
-                  routeSettings: RouteSettings(
-                      arguments: 'feedItem_${data.id}'),
-                  user: data)
-          );
-        },
-        child: BigPhoto(
-              photoLink: data.urls!.regular!,
-              tag: 'searchItem_${data.id}',
-        radius: 17,),
-    );
-  }
-
-  Widget _buildInfo(Photo data) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          // avatar + name + nickname
-          GestureDetector(
-            onTap: (){
-              setState(() {
-                // _isAdded = !_isAdded;
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context)=>Profile(data))
-                );
-              });
-              //
-            },
-            child: Row(
-              children: [
-                UserAvatar(avatarLink: data.user!.profileImage!.small!),
-                SizedBox(width: 6,),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children:<Widget> [
-                    Text(
-                        data.user!.name!, style: AppStyles.h3.copyWith(color: AppColors.black) ),
-                    Text('@${data.user!.twitterUsername ?? ''}', style: AppStyles.h5Black.copyWith(color: AppColors.manatee),)
-                  ],
-                ),
-              ],
-            ),
-          ),
-          LikeButton(data.likedByUser!, data.likes!, data.id!),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAbout(Photo data) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Text('${data.altDescription ?? 'sample image'}',
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-        style: AppStyles.h3.copyWith(color: AppColors.grayChateau),
       ),
     );
   }
@@ -229,7 +148,7 @@ class _PhotoSearchState extends State<PhotoSearch> {
 
     final data =
     (query == ''
-        ? await DataProvider.getPhotos(pageCount == 1 ? pageCount +1 : pageCount, 10)
+        ? await DataProvider.getPhotos(pageCount, 10)
         : await DataProvider.getSearchPhoto(query, pageCount, 10));
 
     if (!mounted) return;

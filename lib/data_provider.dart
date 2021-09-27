@@ -1,5 +1,7 @@
 import 'dart:convert'; // здесь содержатся кодеры/декодеры для JSON
 
+import 'package:dio/dio.dart';
+
 import 'models/auth/model.dart';
 import 'models/photo_list/model.dart';
 import 'package:http/http.dart' as http; // для выполнения http запросов
@@ -22,6 +24,7 @@ import 'package:http/http.dart' as http; // для выполнения http з�
 */
 
 class DataProvider {
+
   // static const String _appId = "261112"; //not used, just for info
   static String authToken = "OuD11c1ZZOwodVtG4bX69AkuioYdLnoKKG0AVU6DszA";
   static const String _accessKey =
@@ -51,13 +54,15 @@ class DataProvider {
 
   // получить рандомное фото
   static Future<Photo> getRandomPhoto() async {
-    var response = await http.get(Uri.parse('https://api.unsplash.com/photos/random'),
-        headers: {'Authorization': 'Bearer $authToken'});
+    Dio dio = Dio();
+    dio.options.baseUrl = 'https://api.unsplash.com';
+    var response = await dio.get('/photos/random',
+        options: Options(headers: {'Authorization': 'Bearer $authToken'}));
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return Photo.fromJson(json.decode(response.body));
+    if (response.statusCode! >= 200 && response.statusCode! < 300) {
+      return Photo.fromJson(response.data);
     } else {
-      throw Exception('Error: ${response.reasonPhrase}');
+      throw Exception('Error: ${response.statusMessage}');
     }
   }
 

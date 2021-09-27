@@ -79,25 +79,14 @@ class _PhotoPageState extends State<PhotoPage> {
           child: Text('${widget.user.description ?? 'sample description'}', maxLines: 3,
             overflow: TextOverflow.ellipsis,
             style: AppStyles.h3.copyWith(color: AppColors.grayChateau),),),
-        // Profile Widget
         DetailedBlock(widget.user),
-        // GestureDetector(
-        //     onTap: (){
-        //       setState(() {
-        //         Navigator.push(
-        //             context,
-        //             MaterialPageRoute(builder: (context)=>Profile(widget.user))
-        //         );
-        //       });
-        //     },
-        //     child: _buildPhotoMeta(widget.user)),
-        _detailedBlock(),
+        _functionsBlock(),
         Padding(padding: EdgeInsets.only(top: 20)),
       ],
     );
   }
 
-  Widget _detailedBlock() {
+  Widget _functionsBlock() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 11, vertical: 5),
       child: Row(

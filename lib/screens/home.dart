@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:widget_lections/data_provider.dart';
 import 'package:widget_lections/models/photo_list/model.dart';
 import 'package:widget_lections/res/res.dart';
+import 'package:widget_lections/screens/for_test.dart';
 import 'package:widget_lections/screens/photos_feed/feedScreen.dart';
 import 'package:widget_lections/screens/search/photo_search.dart';
 import 'package:widget_lections/screens/user/my_profile.dart';
@@ -78,9 +80,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
       body: IndexedStack(
         index: currentTab,
         children: [
-          isLoading != true ? PhotoListScreen(photoList) : CircularProgressIndicator(),
-          isLoading != true ? PhotoSearch(photoList) : CircularProgressIndicator(),
-          isLoading != true ? MyProfilePage(user: user!) : CircularProgressIndicator(),
+          HomePage(title: 'Dio Example'),
+          Container(),
+          Container(),
+          // isLoading != true ? PhotoListScreen(photoList) : Center(child: CircularProgressIndicator()),
+          // isLoading != true ? PhotoSearch(photoList) : Center(child: CircularProgressIndicator()),
+          // isLoading != true ? MyProfilePage(user: user!) : Center(child: CircularProgressIndicator()),
         ],
       ),
       bottomNavigationBar: BottomNavBar(
@@ -138,8 +143,13 @@ class BottomNavBar extends StatelessWidget {
   final double itemCornerRadius;
   final Curve curve;
 
+
   @override
   Widget build(BuildContext context) {
+    // запрещает поворот изображения при повороте экрана
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     return Container(
       decoration: BoxDecoration(
         color: backgroundColor,
@@ -196,7 +206,8 @@ class _ItemWidget extends StatelessWidget{
     return AnimatedContainer(
       duration: animationDuration,
       padding: const EdgeInsets.symmetric(horizontal: 8),
-      width: isSelected ? 150 : (MediaQuery.of(context).size.width - 150 - 8 * 4 - 4 * 2)/2,
+      // 8*4 - paddings, 4*2- промежуточное состояние между ними
+      width: isSelected ? 150 : (MediaQuery.of(context).size.width - 150 - 8*4 - 4*2 )/2,
       curve: curve,
       decoration: BoxDecoration(
         color: isSelected ? item.activeColor.withOpacity(0.2) : backGroundColor,

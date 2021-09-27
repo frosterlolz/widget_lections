@@ -11,3 +11,4 @@ export 'view_builders/about_widget.dart';
 export 'collection_widget.dart';
 export 'profile/header_widget.dart';
 export 'detailed_block.dart';
+export 'searchWidget.dart';

@@ -28,10 +28,7 @@ class _PhotoListState extends State<PhotoListScreen> {
   @override
   void initState() {
     this.photoList.addAll(widget.defaultList);
-
     subscription = Connectivity().onConnectivityChanged.listen(showConnectivitySnackBar);
-
-    // this._getData(pageCount);
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent * 0.8) {
@@ -92,9 +89,8 @@ class _PhotoListState extends State<PhotoListScreen> {
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            buildPhoto(photo, context, 17),
+            buildPhoto(photo, context, 17, photo.id.toString()),
             DetailedBlock(photo, likeButton: true,),
-            // BuildInfo(data: photo, isAdded: isAdded),
             buildAbout(photo),
           ]
       ),

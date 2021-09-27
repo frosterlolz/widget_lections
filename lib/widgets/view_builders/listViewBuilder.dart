@@ -22,7 +22,7 @@ class _ListBuilderState extends State<ListBuilder> {
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            buildPhoto(widget.photo, context, 17),
+            buildPhoto(widget.photo, context, 17, widget.photo.id.toString()),
             DetailedBlock(widget.photo, likeButton: true,),
             // BuildInfo(data: widget.photo, isAdded: widget.isAdded),
             buildAbout(widget.photo),

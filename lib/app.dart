@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/': (context) => MyHomePage(),
           // '/feed': (context) => PhotoListScreen(f),
-          '/test': (context) => Test(),
+          // '/test': (context) => Test(),
         },
 
       );

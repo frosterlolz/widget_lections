@@ -206,7 +206,7 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => CollectionListScreen(collections[index], 'collection_${collections[index].id}')
+                      builder: (context) => CollectionListScreen(collections[index])
                   ));});},
             child: CollectionWidget(
                 photoLink: collections[index].coverPhoto!.urls!.small!,
@@ -230,7 +230,7 @@ class ProfileState extends State<Profile> with TickerProviderStateMixin {
             ),
           );
         }
-        return buildPhoto(userPhotos[index], context, 0);
+        return buildPhoto(userPhotos[index], context, 0, userPhotos[index].toString());
         },
       itemCount: userPhotos.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

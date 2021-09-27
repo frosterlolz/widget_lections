@@ -3,7 +3,7 @@ import 'package:widget_lections/models/photo_list/model.dart';
 import 'package:widget_lections/screens/photoScreen.dart';
 import 'package:widget_lections/widgets/widgets.dart';
 
-Widget buildPhoto(Photo data, BuildContext context, int radius) {
+Widget buildPhoto(Photo data, BuildContext context, int radius, String tag) {
   return GestureDetector(
     onTap: (){
       Navigator.pushNamed(
@@ -11,10 +11,10 @@ Widget buildPhoto(Photo data, BuildContext context, int radius) {
           '/photoPage',
           arguments: PhotoPageArguments(
               routeSettings: RouteSettings(
-                  arguments: 'feedItem_${data.id}'),
+                  arguments: tag),
               user: data)
       );
     },
-    child: BigPhoto(photoLink: data.urls!.regular!, tag: 'feedItem_${data.id}', radius: radius),
+    child: BigPhoto(photoLink: data.urls!.regular!, tag: tag, radius: radius),
   );
 }

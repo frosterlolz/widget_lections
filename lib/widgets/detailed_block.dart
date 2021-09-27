@@ -35,17 +35,17 @@ class DetailedBlockState extends State<DetailedBlock> with TickerProviderStateMi
 
   @override
   Widget build(BuildContext context) => Row(
-    children: [GestureDetector(
-      onTap: (){
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+    children: [
+      GestureDetector(onTap: (){
         setState(() {
           Navigator.push(
               context,
-              MaterialPageRoute(builder: (context)=>Profile(_photo!))
-          );
-        });
-      },
-      child: detailedBlock(_photo!)
-    ),
+              MaterialPageRoute(builder: (context)=>Profile(_photo!)));
+        });},
+          child: detailedBlock(_photo!)
+      ),
       _likeButton ? LikeButton(_photo!.likedByUser!, _photo!.likes!, _photo!.id!) : Container(),
     ]
   );
@@ -54,9 +54,9 @@ class DetailedBlockState extends State<DetailedBlock> with TickerProviderStateMi
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 11, vertical: 14),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               UserAvatar(avatarLink: photo.user!.profileImage!.small!,),
               SizedBox(width: 6,),

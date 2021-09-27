@@ -43,7 +43,7 @@ class AppStyles {
 
   static const h2Black = TextStyle(
     fontSize: 18,
-    height: 22 / 17,
+    height: 23 / 17,
     fontFamily: 'Roboto',
     color: AppColors.black,
     fontWeight: FontWeight.bold,
